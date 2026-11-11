@@ -16,6 +16,7 @@ public sealed partial class ForumService(
     IRepository<PrivateMessage> messages,
     IRepository<ForumMember> members,
     IRepository<ForumPreference> preferences,
+    IForumContentRenderer content,
     TimeProvider time) : IForumService
 {
     private string Tenant => string.IsNullOrWhiteSpace(tenants.TenantId) ? string.Empty : tenants.TenantId.Trim();
@@ -69,17 +70,11 @@ public sealed partial class ForumService(
     private static Result<string> RequiredText(string? value, string field, int max, string emptyMessage)
     {
         string text = value?.Trim() ?? string.Empty;
-        if (text.Length == 0)
-        {
-            return Result<string>.Invalid(new ValidationError(field, emptyMessage));
-        }
-
-        if (text.Length > max)
-        {
-            return Result<string>.Invalid(new ValidationError(field, $"Keep it to {max} characters."));
-        }
-
-        return Result<string>.Success(text);
+        return text.Length == 0
+            ? Result<string>.Invalid(new ValidationError(field, emptyMessage))
+            : text.Length > max
+            ? Result<string>.Invalid(new ValidationError(field, $"Keep it to {max} characters."))
+            : Result<string>.Success(text);
     }
 
     private async Task<ForumPreference> PreferenceAsync(CancellationToken cancellationToken)

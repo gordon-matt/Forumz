@@ -6,7 +6,6 @@ using Forumz.Data.Sql;
 using Forumz.Data.Sqlite;
 using Forumz.Sample;
 using Heroicsoft.NetForge.Abstractions.Auth;
-using Heroicsoft.NetForge.Components;
 using Heroicsoft.NetForge.Components.Layout;
 using Heroicsoft.NetForge.Components.Theming;
 using Microsoft.AspNetCore.Components.Authorization;

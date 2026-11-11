@@ -1,6 +1,4 @@
-using Forumz.Core;
 using Forumz.Models;
-using Forumz.Services;
 
 namespace Forumz.Tests;
 

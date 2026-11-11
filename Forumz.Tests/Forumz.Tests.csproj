@@ -14,12 +14,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Using Include="Xunit" />
+		<ProjectReference Include="..\Forumz.Data.Sqlite\Forumz.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\Forumz.Services\Forumz.Services.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Forumz.Data.Sqlite\Forumz.Data.Sqlite.csproj" />
-		<ProjectReference Include="..\Forumz.Services\Forumz.Services.csproj" />
+		<Using Include="Xunit" />
 	</ItemGroup>
 
 </Project>

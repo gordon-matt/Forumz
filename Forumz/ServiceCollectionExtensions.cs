@@ -1,6 +1,5 @@
 using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Components;
-using Heroicsoft.NetForge.Components.Navigation;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -26,6 +25,7 @@ public static class ServiceCollectionExtensions
             services.AddNetForgeComponents();
             services.AddNetForgeMenuContributor<ForumzMenuContributor>();
             services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, ForumCircuitHandler>());
+            services.TryAddScoped<ForumEditorCapabilities>();
             return services;
         }
     }

@@ -29,8 +29,10 @@ public class ForumzDbContextFactory(string connectionString) : IForumDbContextFa
     public static DbContextOptions<ForumzDbContext> BuildOptions(string connectionString)
     {
         var builder = new DbContextOptionsBuilder<ForumzDbContext>();
+        // The loaded assembly, not its name. A plugin is not on the host's load path, so
+        // Assembly.Load of the name cannot see these migrations and the tables are never created.
         builder.UseSqlite(Prepare(connectionString), sqlite => sqlite
-            .MigrationsAssembly(typeof(ForumzDbContext).Assembly.GetName().Name)
+            .MigrationsAssembly(typeof(ForumzDbContext).Assembly)
             .MigrationsHistoryTable(Constants.MigrationsHistoryTable));
         return builder.Options;
     }

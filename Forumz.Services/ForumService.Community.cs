@@ -10,12 +10,7 @@ public sealed partial class ForumService
     public async Task<Result> SubscribeToTopicAsync(int topicId, CancellationToken cancellationToken = default)
     {
         var found = await FindTopicAsync(topicId, cancellationToken);
-        if (!found.IsSuccess)
-        {
-            return found.ToVoid();
-        }
-
-        return await SubscribeAsync(found.Value.Forum.Id, topicId, cancellationToken);
+        return !found.IsSuccess ? found.ToVoid() : await SubscribeAsync(found.Value.Forum.Id, topicId, cancellationToken);
     }
 
     private async Task<Result> SubscribeAsync(int forumId, int topicId, CancellationToken cancellationToken)

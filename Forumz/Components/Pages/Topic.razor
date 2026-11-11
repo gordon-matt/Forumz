@@ -48,32 +48,47 @@
 
         @foreach (var post in model.Posts)
         {
-            <article class="fz-post">
-                <div class="fz-post-head">
-                    <strong>@post.AuthorName</strong>
-                    <span class="nf-hint" title="@ForumTime.Exact(post.CreatedOnUtc)">
-                        @ForumTime.Format(post.CreatedOnUtc, relative, Clock)
-                        @if (post.UpdatedOnUtc > post.CreatedOnUtc.AddSeconds(1))
-                        {
-                            <text> · edited</text>
-                        }
-                    </span>
-                </div>
-                <PostBody Text="@post.Text" Signature="@post.Signature" />
-                @if (post.CanEdit || post.CanDelete)
-                {
-                    <div class="fz-actions" style="margin-top: 0.75rem;">
-                        @if (post.CanEdit)
-                        {
-                            <button type="button" class="nf-button" @onclick="() => Edit(post)">Edit</button>
-                        }
-                        @if (post.CanDelete)
-                        {
-                            <button type="button" class="nf-button nf-button-danger" @onclick="() => DeletePostAsync(post)">Delete</button>
-                        }
-                    </div>
-                }
-            </article>
+            <table class="fz-post">
+                <thead>
+                    <tr>
+                        <th class="fz-post-user">@post.AuthorName</th>
+                        <th>
+                            <span class="nf-hint" title="@ForumTime.Exact(post.CreatedOnUtc)">@ForumTime.Format(post.CreatedOnUtc, relative, Clock)</span>
+                            @if (post.UpdatedOnUtc > post.CreatedOnUtc.AddSeconds(1))
+                            {
+                                <span class="nf-hint"> · edited</span>
+                            }
+                        </th>
+                        <th style="text-align: right; width: 1%; white-space: nowrap;">
+                            @if (post.CanEdit)
+                            {
+                                <button type="button" class="nf-button" @onclick="() => Edit(post)">Edit</button>
+                            }
+                            @if (post.CanDelete)
+                            {
+                                <button type="button" class="nf-button nf-button-danger" @onclick="() => DeletePostAsync(post)">Delete</button>
+                            }
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fz-post-user">
+                            <span class="fz-user-name">@post.AuthorName</span>
+                            <ul class="fz-user-stats">
+                                <li><span>Posts</span><span>@post.AuthorPostCount</span></li>
+                            </ul>
+                        </td>
+                        <td colspan="2">
+                            <div class="nf-markdown">@((MarkupString)post.Html)</div>
+                            @if (!string.IsNullOrWhiteSpace(post.Signature))
+                            {
+                                <div class="fz-signature">@post.Signature</div>
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         }
 
         <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
@@ -81,9 +96,7 @@
         @if (model.CanReply)
         {
             <EditForm Model="reply" OnValidSubmit="ReplyAsync">
-                <Field Label="Reply" For="reply-text">
-                    <InputTextArea id="reply-text" class="nf-textarea" rows="6" @bind-Value="reply.Text" />
-                </Field>
+                <PostComposer @bind-Text="reply.Text" @bind-Format="reply.Format" Label="Reply" />
                 <div class="nf-form-actions">
                     <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post reply</button>
                 </div>
@@ -94,9 +107,7 @@
 
 <Drawer Open="editing is not null" Scrim="true" Title="Edit post" Width="min(640px, 100vw)" OnClose="CloseEdit">
     <ChildContent>
-        <Field Label="Post" For="edit-text">
-            <InputTextArea id="edit-text" class="nf-textarea" rows="10" @bind-Value="editText" />
-        </Field>
+        <PostComposer @bind-Text="editText" @bind-Format="editFormat" Label="Post" />
     </ChildContent>
     <Footer>
         <button type="button" class="nf-button" @onclick="CloseEdit">Cancel</button>
@@ -140,6 +151,7 @@
     private int loadedPage = -1;
     private PostModel? editing;
     private string editText = string.Empty;
+    private ContentFormat editFormat = ContentFormat.Markdown;
     private int destinationForumId;
     private IReadOnlyList<ForumChoiceModel> choices = [];
 
@@ -182,7 +194,7 @@
         }
 
         saving = true;
-        var result = await Forums.CreatePostAsync(new CreatePostRequest(TopicId, reply.Text), Client.IpAddress);
+        var result = await Forums.CreatePostAsync(new CreatePostRequest(TopicId, reply.Text, reply.Format), Client.IpAddress);
         saving = false;
         if (!result.IsSuccess)
         {
@@ -191,6 +203,7 @@
         }
 
         reply.Text = string.Empty;
+        reply.Format = ContentFormat.Markdown;
         Toasts.Success("Reply posted.");
         await LoadAsync(true);
     }
@@ -199,6 +212,7 @@
     {
         editing = post;
         editText = post.Text;
+        editFormat = post.Format;
     }
 
     private void CloseEdit() => editing = null;
@@ -211,7 +225,7 @@
         }
 
         saving = true;
-        var result = await Forums.UpdatePostAsync(new UpdatePostRequest(editing.Id, editText));
+        var result = await Forums.UpdatePostAsync(new UpdatePostRequest(editing.Id, editText, editFormat));
         saving = false;
         if (!result.IsSuccess)
         {
@@ -325,5 +339,7 @@
     private sealed class ReplyForm
     {
         public string Text { get; set; } = string.Empty;
+
+        public ContentFormat Format { get; set; } = ContentFormat.Markdown;
     }
 }

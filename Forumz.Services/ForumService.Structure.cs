@@ -224,7 +224,7 @@ public sealed partial class ForumService
         }
 
         var forum = await forums.FindOneAsync(request.Id.Value);
-        if (forum is null || forum.ForumGroupId != group.Id && !await GroupInTenantAsync(forum.ForumGroupId, cancellationToken))
+        if (forum is null || (forum.ForumGroupId != group.Id && !await GroupInTenantAsync(forum.ForumGroupId, cancellationToken)))
         {
             return Result<int>.NotFound("That forum was not found.");
         }
@@ -300,12 +300,9 @@ public sealed partial class ForumService
     public async Task<Result<ForumSettingsModel>> GetSettingsAsync(CancellationToken cancellationToken = default)
     {
         var reader = RequireReader();
-        if (!reader.IsSuccess)
-        {
-            return reader.To<ForumSettingsModel>();
-        }
-
-        return Result<ForumSettingsModel>.Success(ToSettings(await PreferenceAsync(cancellationToken)));
+        return !reader.IsSuccess
+            ? reader.To<ForumSettingsModel>()
+            : Result<ForumSettingsModel>.Success(ToSettings(await PreferenceAsync(cancellationToken)));
     }
 
     /// <inheritdoc />

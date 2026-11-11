@@ -179,6 +179,11 @@ namespace Forumz.Data.Npgsql.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("Format")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(45)

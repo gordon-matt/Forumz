@@ -167,6 +167,11 @@ namespace Forumz.Data.MySql.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("Format")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(45)

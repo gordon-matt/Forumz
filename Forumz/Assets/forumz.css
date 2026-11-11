@@ -1,10 +1,26 @@
 .fz-page { display: flex; flex-direction: column; gap: 1rem; }
-.fz-post { background: var(--nf-surface); border: 1px solid var(--nf-border); border-radius: var(--nf-radius); padding: 1rem 1.1rem; }
-.fz-post + .fz-post { margin-top: 0.75rem; }
-.fz-post-head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; margin-bottom: 0.55rem; }
-.fz-post-body p { margin: 0 0 0.65rem; white-space: pre-wrap; }
-.fz-post-body p:last-child { margin-bottom: 0; }
-.fz-signature { margin: 0.85rem 0 0; padding-top: 0.55rem; border-top: 1px solid var(--nf-border); color: var(--nf-muted); white-space: pre-wrap; }
 .fz-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
-.fz-group + .fz-group { margin-top: 1.25rem; }
-.fz-group h2 { margin: 0 0 0.45rem; font-size: 1.05rem; }
+.fz-board { overflow: hidden; border: 1px solid var(--nf-border); border-radius: var(--nf-radius); background: var(--nf-surface); }
+.fz-board + .fz-board { margin-top: 1.25rem; }
+.fz-board-title { margin: 0; padding: 0.7rem 1rem; border-bottom: 1px solid var(--nf-border); background: var(--nf-surface-2); font-size: 1.15rem; font-weight: 650; }
+.fz-board table { width: 100%; border-collapse: collapse; }
+.fz-board th, .fz-board td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--nf-border); text-align: left; vertical-align: top; }
+.fz-board th { font-size: 0.75rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--nf-muted); background: var(--nf-surface); }
+.fz-board tbody tr:last-child td { border-bottom: 0; }
+.fz-board tbody tr:hover td { background: var(--nf-hover); }
+.fz-count, .fz-board th.fz-count { width: 5.5rem; text-align: center; white-space: nowrap; }
+.fz-latest { width: 13rem; }
+.fz-forum-title { font-weight: 650; }
+.fz-forum-title a { color: var(--nf-text); text-decoration: none; }
+.fz-forum-title a:hover { color: var(--nf-accent); }
+.fz-topic-type { margin-right: 0.35rem; }
+.fz-post { width: 100%; margin: 0; border: 1px solid var(--nf-border); border-collapse: collapse; background: var(--nf-surface); }
+.fz-post + .fz-post { margin-top: 0.85rem; }
+.fz-post th { padding: 0.55rem 0.85rem; background: var(--nf-surface-2); border-bottom: 1px solid var(--nf-border); font-weight: 650; text-align: left; }
+.fz-post td { padding: 0.85rem; vertical-align: top; }
+.fz-post-user { width: 11rem; }
+.fz-user-name { display: block; margin-bottom: 0.35rem; }
+.fz-user-stats { margin: 0; padding: 0; list-style: none; color: var(--nf-muted); font-size: 0.85rem; }
+.fz-user-stats li { display: flex; justify-content: space-between; gap: 0.5rem; }
+.fz-signature { margin-top: 1rem; padding-top: 0.65rem; border-top: 1px solid var(--nf-border); color: var(--nf-muted); white-space: pre-wrap; }
+.fz-composer { display: flex; flex-direction: column; gap: 0.6rem; }

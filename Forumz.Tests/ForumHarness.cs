@@ -4,6 +4,7 @@ using Forumz.Data;
 using Forumz.Data.Entities;
 using Forumz.Data.Sqlite;
 using Forumz.Services;
+using Forumz.Services.Content;
 using Heroicsoft.NetForge.Abstractions.Auth;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -88,5 +89,6 @@ internal static class ForumHarness
             database.Repository<PrivateMessage>(),
             database.Repository<ForumMember>(),
             database.Repository<ForumPreference>(),
+            new ForumContentRenderer(),
             TimeProvider.System);
 }

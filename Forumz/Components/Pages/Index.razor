@@ -31,49 +31,51 @@
     {
         @foreach (var group in model.Groups)
         {
-            <section class="fz-group">
-                <h2>@group.Name</h2>
+            <section class="fz-board">
+                <h2 class="fz-board-title">@group.Name</h2>
                 @if (group.Forums.Count == 0)
                 {
-                    <p class="nf-muted">No forums in this group.</p>
+                    <p class="nf-muted" style="padding: 0.85rem 1rem;">No forums in this group.</p>
                 }
                 else
                 {
-                    <div class="nf-table-wrap">
-                        <table class="nf-table">
-                            <thead>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Forum</th>
+                                <th class="fz-count">Topics</th>
+                                <th class="fz-count">Posts</th>
+                                <th class="fz-latest">Last post</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var forum in group.Forums)
+                            {
                                 <tr>
-                                    <th>Forum</th>
-                                    <th class="nf-cell-number">Topics</th>
-                                    <th class="nf-cell-number">Posts</th>
-                                    <th>Last post</th>
+                                    <td>
+                                        <div class="fz-forum-title"><a href="@($"forum/{forum.Id}")">@forum.Name</a></div>
+                                        @if (forum.Description.Length > 0)
+                                        {
+                                            <div class="nf-hint">@forum.Description</div>
+                                        }
+                                    </td>
+                                    <td class="fz-count">@forum.TopicCount</td>
+                                    <td class="fz-count">@forum.PostCount</td>
+                                    <td class="fz-latest">
+                                        @if (forum.LastPostTime is DateTime whenUtc && forum.LastTopicId is int topicId)
+                                        {
+                                            <a href="@($"topic/{topicId}")" title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, relative, Clock)</a>
+                                            <div class="nf-hint">@forum.LastAuthorName</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="nf-muted">No posts</span>
+                                        }
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var forum in group.Forums)
-                                {
-                                    <tr>
-                                        <td>
-                                            <a href="@($"forum/{forum.Id}")">@forum.Name</a>
-                                            @if (forum.Description.Length > 0)
-                                            {
-                                                <div class="nf-hint">@forum.Description</div>
-                                            }
-                                        </td>
-                                        <td class="nf-cell-number">@forum.TopicCount</td>
-                                        <td class="nf-cell-number">@forum.PostCount</td>
-                                        <td>
-                                            @if (forum.LastPostTime is DateTime whenUtc && forum.LastTopicId is int topicId)
-                                            {
-                                                <a href="@($"topic/{topicId}")" title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, relative, Clock)</a>
-                                                <div class="nf-hint">@forum.LastAuthorName</div>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                            }
+                        </tbody>
+                    </table>
                 }
             </section>
         }

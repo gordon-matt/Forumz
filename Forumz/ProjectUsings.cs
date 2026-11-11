@@ -1,5 +1,3 @@
-global using Forumz.Components;
-global using Forumz.Components.Shared;
 global using Forumz.Core;
 global using Forumz.Infrastructure;
 global using Forumz.Models;

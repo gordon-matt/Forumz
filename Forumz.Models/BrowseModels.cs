@@ -142,6 +142,9 @@ public sealed record TopicPageModel(
 /// <param name="UpdatedOnUtc">When the post was last edited. Equal to <paramref name="CreatedOnUtc"/> until then.</param>
 /// <param name="CanEdit">Whether the caller may edit it.</param>
 /// <param name="CanDelete">Whether the caller may delete it.</param>
+/// <param name="AuthorPostCount">How many posts the author has written.</param>
+/// <param name="Format">Whether <paramref name="Text"/> is Markdown or HTML.</param>
+/// <param name="Html">Sanitized HTML for display. The page must not render <paramref name="Text"/> as markup.</param>
 public sealed record PostModel(
     int Id,
     string AuthorUserId,
@@ -151,4 +154,7 @@ public sealed record PostModel(
     DateTime CreatedOnUtc,
     DateTime UpdatedOnUtc,
     bool CanEdit,
-    bool CanDelete);
+    bool CanDelete,
+    int AuthorPostCount,
+    ContentFormat Format,
+    string Html);

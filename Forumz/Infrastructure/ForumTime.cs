@@ -16,27 +16,13 @@ internal static class ForumTime
             delta = TimeSpan.Zero;
         }
 
-        if (delta.TotalMinutes < 1)
-        {
-            return "just now";
-        }
-
-        if (delta.TotalMinutes < 60)
-        {
-            return $"{(int)delta.TotalMinutes} min ago";
-        }
-
-        if (delta.TotalHours < 24)
-        {
-            return $"{(int)delta.TotalHours} hr ago";
-        }
-
-        if (delta.TotalDays < 14)
-        {
-            return $"{(int)delta.TotalDays} days ago";
-        }
-
-        return utc.ToLocalTime().ToString("g");
+        return delta.TotalMinutes < 1
+            ? "just now"
+            : delta.TotalMinutes < 60
+            ? $"{(int)delta.TotalMinutes} min ago"
+            : delta.TotalHours < 24
+            ? $"{(int)delta.TotalHours} hr ago"
+            : delta.TotalDays < 14 ? $"{(int)delta.TotalDays} days ago" : utc.ToLocalTime().ToString("g");
     }
 
     public static string Exact(DateTime utc) => utc.ToLocalTime().ToString("f");

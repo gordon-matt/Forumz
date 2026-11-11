@@ -30,9 +30,7 @@
                 </InputSelect>
             </Field>
         }
-        <Field Label="Post" For="topic-text">
-            <InputTextArea id="topic-text" class="nf-textarea" rows="8" @bind-Value="form.Text" />
-        </Field>
+        <PostComposer @bind-Text="form.Text" @bind-Format="form.Format" Label="Post" />
         <div class="nf-form-actions">
             <a class="nf-button" href="@($"forum/{ForumId}")">Cancel</a>
             <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post topic</button>
@@ -55,7 +53,7 @@
         }
 
         saving = true;
-        var result = await Forums.CreateTopicAsync(new CreateTopicRequest(ForumId, form.Subject, form.Text, form.TopicType), Client.IpAddress);
+        var result = await Forums.CreateTopicAsync(new CreateTopicRequest(ForumId, form.Subject, form.Text, form.TopicType, form.Format), Client.IpAddress);
         saving = false;
         if (!result.IsSuccess)
         {
@@ -72,6 +70,8 @@
         public string Subject { get; set; } = string.Empty;
 
         public string Text { get; set; } = string.Empty;
+
+        public ContentFormat Format { get; set; } = ContentFormat.Markdown;
 
         public ForumTopicType TopicType { get; set; } = ForumTopicType.Normal;
     }

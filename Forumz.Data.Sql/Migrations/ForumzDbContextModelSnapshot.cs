@@ -179,6 +179,11 @@ namespace Forumz.Data.Sql.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Format")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(45)

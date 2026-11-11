@@ -1,9 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace Forumz.Services;
 
@@ -33,6 +31,7 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IForumTenantScope, SingleTenantScope>();
             services.TryAddScoped<IForumAccess, DefaultForumAccess>();
             services.TryAddScoped<IForumNotifier, LoggingForumNotifier>();
+            services.TryAddScoped<IForumContentRenderer, ForumContentRenderer>();
 
             services.TryAddScoped(Repository<ForumGroup>);
             services.TryAddScoped(Repository<Forum>);
@@ -81,12 +80,9 @@ internal sealed class ForumUserContext(IHttpContextAccessor httpContextAccessor,
     public IReadOnlyList<string> GetRoleNames()
     {
         var user = Principal();
-        if (user is null)
-        {
-            return [];
-        }
-
-        return user.Claims
+        return user is null
+            ? []
+            : (IReadOnlyList<string>)user.Claims
             .Where(claim => claim.Type is ClaimTypes.Role or "role" or "roles")
             .Select(claim => claim.Value)
             .Distinct(StringComparer.OrdinalIgnoreCase)

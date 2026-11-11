@@ -12,17 +12,14 @@ public sealed class ForumzMenuContributor(IOptions<ForumzOptions> options) : INe
     public string DefaultMenu => "Forumz";
 
     /// <inheritdoc />
-    public void Contribute(INetForgeMenuGroupBuilder group, Action<NetForgeMenuItemOptions>? configure)
-    {
-        group.AddCustom(item =>
-        {
-            item.Title = options.Value.Title;
-            item.Icon = "chat";
-            item.Url = options.Value.BasePath;
-            item.External = true;
-            configure?.Invoke(item);
-        });
-    }
+    public void Contribute(INetForgeMenuGroupBuilder group, Action<NetForgeMenuItemOptions>? configure) => group.AddCustom(item =>
+                                                                                                                {
+                                                                                                                    item.Title = options.Value.Title;
+                                                                                                                    item.Icon = "chat";
+                                                                                                                    item.Url = options.Value.BasePath;
+                                                                                                                    item.External = true;
+                                                                                                                    configure?.Invoke(item);
+                                                                                                                });
 }
 
 /// <summary>Places the forum on a shared menu.</summary>

@@ -89,4 +89,10 @@ public sealed class ForumzOptions
 
     /// <summary>Items in an RSS feed.</summary>
     public int FeedCount { get; set; } = 20;
+
+    /// <summary>Markdown, rich text, or both. Rich text needs a Pickstack editor registered by the host.</summary>
+    public ForumEditorMode EditorMode { get; set; } = ForumEditorMode.Both;
+
+    /// <summary>The editor a new post opens in when both are available.</summary>
+    public ContentFormat DefaultContentFormat { get; set; } = ContentFormat.Markdown;
 }

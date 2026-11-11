@@ -165,6 +165,11 @@ namespace Forumz.Data.Sqlite.Migrations
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Format")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(45)

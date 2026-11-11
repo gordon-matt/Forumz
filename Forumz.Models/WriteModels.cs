@@ -5,17 +5,20 @@ namespace Forumz.Models;
 /// <param name="Subject">Subject line.</param>
 /// <param name="Text">First post, as plain text.</param>
 /// <param name="TopicType">Ignored unless the caller can moderate. Everyone else gets a normal topic.</param>
-public sealed record CreateTopicRequest(int ForumId, string Subject, string Text, ForumTopicType TopicType = ForumTopicType.Normal);
+/// <param name="Format">Markdown unless the author used the rich text editor.</param>
+public sealed record CreateTopicRequest(int ForumId, string Subject, string Text, ForumTopicType TopicType = ForumTopicType.Normal, ContentFormat Format = ContentFormat.Markdown);
 
 /// <summary>Adds a reply.</summary>
 /// <param name="TopicId">Topic to reply to.</param>
-/// <param name="Text">Plain text body.</param>
-public sealed record CreatePostRequest(int TopicId, string Text);
+/// <param name="Text">Markdown or HTML, according to <paramref name="Format"/>.</param>
+/// <param name="Format">Markdown unless the author used the rich text editor.</param>
+public sealed record CreatePostRequest(int TopicId, string Text, ContentFormat Format = ContentFormat.Markdown);
 
 /// <summary>Replaces a post body.</summary>
 /// <param name="PostId">Post to change.</param>
-/// <param name="Text">New plain text body.</param>
-public sealed record UpdatePostRequest(int PostId, string Text);
+/// <param name="Text">Markdown or HTML, according to <paramref name="Format"/>.</param>
+/// <param name="Format">Markdown unless the author used the rich text editor.</param>
+public sealed record UpdatePostRequest(int PostId, string Text, ContentFormat Format = ContentFormat.Markdown);
 
 /// <summary>Creates or renames a group. A missing or zero <see cref="Id"/> creates one.</summary>
 /// <param name="Id">Existing group, or null to create.</param>

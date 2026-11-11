@@ -4,8 +4,8 @@
 }
 else
 {
-    <div class="nf-table-wrap">
-        <table class="nf-table">
+    <div class="fz-board">
+        <table>
             <thead>
                 <tr>
                     <th>Topic</th>
@@ -13,9 +13,9 @@ else
                     {
                         <th>Forum</th>
                     }
-                    <th class="nf-cell-number">Replies</th>
-                    <th class="nf-cell-number">Views</th>
-                    <th>Last post</th>
+                    <th class="fz-count">Replies</th>
+                    <th class="fz-count">Views</th>
+                    <th class="fz-latest">Last post</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,18 +25,18 @@ else
                         <td>
                             @if (topic.TopicType != ForumTopicType.Normal)
                             {
-                                <span class="nf-badge nf-badge-accent">@topic.TopicType</span>
+                                <span class="nf-badge nf-badge-accent fz-topic-type">@topic.TopicType</span>
                             }
-                            <a href="@($"topic/{topic.Id}")">@topic.Subject</a>
+                            <div class="fz-forum-title"><a href="@($"topic/{topic.Id}")">@topic.Subject</a></div>
                             <div class="nf-hint">@topic.AuthorName</div>
                         </td>
                         @if (ShowForum)
                         {
                             <td><a href="@($"forum/{topic.ForumId}")">@topic.ForumName</a></td>
                         }
-                        <td class="nf-cell-number">@topic.ReplyCount</td>
-                        <td class="nf-cell-number">@topic.Views</td>
-                        <td class="nf-cell-nowrap">
+                        <td class="fz-count">@topic.ReplyCount</td>
+                        <td class="fz-count">@topic.Views</td>
+                        <td class="fz-latest">
                             @if (topic.LastPostTime is DateTime whenUtc)
                             {
                                 <span title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, Relative, Clock)</span>

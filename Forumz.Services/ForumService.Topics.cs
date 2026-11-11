@@ -148,7 +148,10 @@ public sealed partial class ForumService
                 post.CreatedOnUtc,
                 post.UpdatedOnUtc,
                 CanEdit(post, preference),
-                CanDelete(post, preference));
+                CanDelete(post, preference),
+                member?.PostCount ?? 0,
+                post.Format,
+                content.ToHtml(post.Text, post.Format));
         }).ToList();
 
         return Result<TopicPageModel>.Success(new TopicPageModel(
@@ -186,14 +189,11 @@ public sealed partial class ForumService
 
         var preference = await PreferenceAsync(cancellationToken);
         string term = keywords?.Trim() ?? string.Empty;
-        if (term.Length < preference.SearchMinimumLength)
-        {
-            return Result<TopicListModel>.Invalid(new ValidationError(
+        return term.Length < preference.SearchMinimumLength
+            ? Result<TopicListModel>.Invalid(new ValidationError(
                 nameof(keywords),
-                $"Enter at least {preference.SearchMinimumLength} characters."));
-        }
-
-        return await ListTopicsAsync(forumId, term.ToLowerInvariant(), pageNumber, $"Results for \"{term}\"", null, cancellationToken);
+                $"Enter at least {preference.SearchMinimumLength} characters."))
+            : await ListTopicsAsync(forumId, term.ToLowerInvariant(), pageNumber, $"Results for \"{term}\"", null, cancellationToken);
     }
 
     private async Task<Result<TopicListModel>> ListTopicsAsync(

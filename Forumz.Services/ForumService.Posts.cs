@@ -53,6 +53,7 @@ public sealed partial class ForumService
             TopicId = topic.Id,
             UserId = userId,
             Text = text.Value,
+            Format = request.Format,
             IpAddress = Address(ipAddress),
             CreatedOnUtc = now,
             UpdatedOnUtc = now,
@@ -115,6 +116,7 @@ public sealed partial class ForumService
             TopicId = topic.Id,
             UserId = userId,
             Text = text.Value,
+            Format = request.Format,
             IpAddress = Address(ipAddress),
             CreatedOnUtc = now,
             UpdatedOnUtc = now,
@@ -174,6 +176,7 @@ public sealed partial class ForumService
         }
 
         post.Text = text.Value;
+        post.Format = request.Format;
         post.UpdatedOnUtc = Now;
         await posts.UpdateAsync(post, Token(cancellationToken));
         logger.LogInformation("User {UserId} edited post {PostId}", users.GetCurrentUserId(), post.Id);
