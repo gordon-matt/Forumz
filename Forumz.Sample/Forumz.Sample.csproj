@@ -7,11 +7,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Pickstack.FileManager.WebFilez" Version="1.0.4" />
+		<PackageReference Include="Pickstack.RichTextEditor.TinyMce8" Version="1.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Forumz\Forumz.csproj" />
 		<ProjectReference Include="..\Forumz.Data.MySql\Forumz.Data.MySql.csproj" />
 		<ProjectReference Include="..\Forumz.Data.Npgsql\Forumz.Data.Npgsql.csproj" />
 		<ProjectReference Include="..\Forumz.Data.Sql\Forumz.Data.Sql.csproj" />
 		<ProjectReference Include="..\Forumz.Data.Sqlite\Forumz.Data.Sqlite.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>

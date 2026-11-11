@@ -9,10 +9,25 @@ using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Components.Layout;
 using Heroicsoft.NetForge.Components.Theming;
 using Microsoft.AspNetCore.Components.Authorization;
+using Pickstack;
+using Pickstack.FileManager.WebFilez;
+using Pickstack.RichTextEditor.TinyMce8;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IUserContextService, SampleUserContext>();
+
+// The file browser is an MVC page in the picker's frame, and it connects to a Blazor
+// circuit at /_blazor. This sample's only other circuit is the forum under /forums,
+// so Pickstack maps that root hub itself. UseHostBlazor() is for a host that already
+// maps a circuit at the site root.
+builder.Services.AddControllersWithViews();
+builder.Services.AddPickstack(builder.Configuration)
+    .AddWebFilez()
+    .AddTinyMce8(editor => editor
+        .WithHeight(280)
+        .WithToolbar("undo redo | bold italic underline | bullist numlist blockquote | link image | code"));
+
 builder.Services.AddForumz(options => builder.Configuration.GetSection(ForumzOptions.SectionName).Bind(options));
 builder.Services.AddScoped<AuthenticationStateProvider, SampleAuthState>();
 builder.Services.AddCascadingAuthenticationState();
@@ -62,6 +77,10 @@ builder.Services.AddHostedService<SampleSeeder>();
 var app = builder.Build();
 
 app.UseStaticFiles();
+app.MapStaticAssets();
+app.UseAntiforgery();
+app.UsePickstack();
+app.MapControllers();
 app.MapGet("/", () => Results.Redirect("/forums"));
 app.MapForumz();
 app.Run();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Forumz;
 
@@ -21,6 +22,9 @@ public static class EndpointRouteBuilderExtensions
 
             group.MapGet("_assets/{name}", EmbeddedAssets.Serve).ExcludeFromDescription();
             group.MapGet("_framework/blazor.web.js", ServeBlazorScript).ExcludeFromDescription();
+            // The document base href is the mount path. Blazor resolves a "./_content/..."
+            // import against that base, so the same static assets must also answer there.
+            group.MapGet("_content/{**path}", ServeContent).ExcludeFromDescription();
             group.MapGet("feed", (IForumService forums, HttpContext context, CancellationToken cancellationToken) =>
                 FeedAsync(forums, context, null, cancellationToken));
             group.MapGet("forum/{forumId:int}/feed", (int forumId, IForumService forums, HttpContext context, CancellationToken cancellationToken) =>
@@ -49,6 +53,30 @@ public static class EndpointRouteBuilderExtensions
         var options = context.RequestServices.GetRequiredService<IOptions<ForumzOptions>>().Value;
         string baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{options.BasePath}";
         return Results.Text(RssDocument.Write(result.Value, baseUrl), "application/rss+xml");
+    }
+
+    private static IResult ServeContent(string path, IWebHostEnvironment environment)
+    {
+        if (path.Contains("..", StringComparison.Ordinal))
+        {
+            return Results.NotFound();
+        }
+
+        var file = environment.WebRootFileProvider.GetFileInfo($"_content/{path}");
+        if (!file.Exists)
+        {
+            return Results.NotFound();
+        }
+
+        var types = new FileExtensionContentTypeProvider();
+        if (!types.TryGetContentType(path, out var contentType))
+        {
+            contentType = "application/octet-stream";
+        }
+
+        return file.PhysicalPath is { } physicalPath
+            ? Results.File(physicalPath, contentType)
+            : Results.Stream(file.CreateReadStream(), contentType, lastModified: file.LastModified);
     }
 
     private static IResult ServeBlazorScript(IWebHostEnvironment environment)

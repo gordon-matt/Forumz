@@ -8,7 +8,9 @@ namespace Forumz.Components.Shared;
 /// <summary>Markdown or the host's Pickstack rich text editor, for a new post or a reply.</summary>
 public partial class PostComposer : IDisposable
 {
-    private const string ModulePath = "./_content/Forumz/forumz.js";
+    // Root-absolute. The forum document's base href is the mount path, and a
+    // "./_content/..." import would be requested under that path and miss the script.
+    private const string ModulePath = "/_content/Forumz/forumz.js";
 
     private int generation;
     private MarkdownEditor? markdown;
