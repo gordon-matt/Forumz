@@ -1,0 +1,329 @@
+@page "/topic/{TopicId:int}"
+@inject IForumService Forums
+@inject NavigationManager Navigation
+@inject ForumClientContext Client
+@inject ToastService Toasts
+@inject DialogService Dialogs
+@inject TimeProvider Clock
+
+<PageTitle>@(model?.Subject ?? "Topic")</PageTitle>
+
+<div class="fz-page">
+    @if (loading)
+    {
+        <p class="nf-muted">Loading…</p>
+    }
+    else if (error is not null)
+    {
+        <EmptyState Icon="warning" Title="This topic could not be opened" Description="@error" />
+    }
+    else if (model is not null)
+    {
+        <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
+            <a href="./">Forums</a>
+            <span aria-hidden="true">/</span>
+            <a href="@($"forum/{model.ForumId}")">@model.ForumName</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">@model.Subject</span>
+        </nav>
+        <PageHeader Title="@model.Subject" Icon="chat" Description="@($"{model.Views} views")">
+            <Actions>
+                <div class="fz-actions">
+                    @if (model.TopicType != ForumTopicType.Normal)
+                    {
+                        <span class="nf-badge nf-badge-accent">@model.TopicType</span>
+                    }
+                    @if (model.CanSubscribe)
+                    {
+                        <button type="button" class="nf-button" @onclick="ToggleSubscriptionAsync">@(model.IsSubscribed ? "Unsubscribe" : "Subscribe")</button>
+                    }
+                    @if (model.CanModerate)
+                    {
+                        <button type="button" class="nf-button" @onclick="OpenMove">Move</button>
+                        <button type="button" class="nf-button nf-button-danger" @onclick="DeleteTopicAsync">Delete</button>
+                    }
+                </div>
+            </Actions>
+        </PageHeader>
+
+        @foreach (var post in model.Posts)
+        {
+            <article class="fz-post">
+                <div class="fz-post-head">
+                    <strong>@post.AuthorName</strong>
+                    <span class="nf-hint" title="@ForumTime.Exact(post.CreatedOnUtc)">
+                        @ForumTime.Format(post.CreatedOnUtc, relative, Clock)
+                        @if (post.UpdatedOnUtc > post.CreatedOnUtc.AddSeconds(1))
+                        {
+                            <text> · edited</text>
+                        }
+                    </span>
+                </div>
+                <PostBody Text="@post.Text" Signature="@post.Signature" />
+                @if (post.CanEdit || post.CanDelete)
+                {
+                    <div class="fz-actions" style="margin-top: 0.75rem;">
+                        @if (post.CanEdit)
+                        {
+                            <button type="button" class="nf-button" @onclick="() => Edit(post)">Edit</button>
+                        }
+                        @if (post.CanDelete)
+                        {
+                            <button type="button" class="nf-button nf-button-danger" @onclick="() => DeletePostAsync(post)">Delete</button>
+                        }
+                    </div>
+                }
+            </article>
+        }
+
+        <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
+
+        @if (model.CanReply)
+        {
+            <EditForm Model="reply" OnValidSubmit="ReplyAsync">
+                <Field Label="Reply" For="reply-text">
+                    <InputTextArea id="reply-text" class="nf-textarea" rows="6" @bind-Value="reply.Text" />
+                </Field>
+                <div class="nf-form-actions">
+                    <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post reply</button>
+                </div>
+            </EditForm>
+        }
+    }
+</div>
+
+<Drawer Open="editing is not null" Scrim="true" Title="Edit post" Width="min(640px, 100vw)" OnClose="CloseEdit">
+    <ChildContent>
+        <Field Label="Post" For="edit-text">
+            <InputTextArea id="edit-text" class="nf-textarea" rows="10" @bind-Value="editText" />
+        </Field>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="nf-button" @onclick="CloseEdit">Cancel</button>
+        <button type="button" class="nf-button nf-button-primary" @onclick="SaveEditAsync" disabled="@saving">Save</button>
+    </Footer>
+</Drawer>
+
+<Drawer Open="moving" Scrim="true" Title="Move topic" Width="min(480px, 100vw)" OnClose="() => moving = false">
+    <ChildContent>
+        <Field Label="Forum" For="move-forum">
+            <InputSelect id="move-forum" class="nf-input" @bind-Value="destinationForumId">
+                @foreach (var choice in choices)
+                {
+                    <option value="@choice.Id">@choice.GroupName — @choice.Name</option>
+                }
+            </InputSelect>
+        </Field>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="nf-button" @onclick="() => moving = false">Cancel</button>
+        <button type="button" class="nf-button nf-button-primary" @onclick="MoveAsync">Move</button>
+    </Footer>
+</Drawer>
+
+@code {
+    [Parameter]
+    public int TopicId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "page")]
+    public int PageNumber { get; set; }
+
+    private readonly ReplyForm reply = new();
+    private TopicPageModel? model;
+    private string? error;
+    private bool loading = true;
+    private bool saving;
+    private bool relative = true;
+    private bool moving;
+    private int[] sizes = [15];
+    private int loadedId;
+    private int loadedPage = -1;
+    private PostModel? editing;
+    private string editText = string.Empty;
+    private int destinationForumId;
+    private IReadOnlyList<ForumChoiceModel> choices = [];
+
+    protected override async Task OnParametersSetAsync() => await LoadAsync(false);
+
+    private async Task LoadAsync(bool force)
+    {
+        int page = PageNumber < 1 ? 1 : PageNumber;
+        if (!force && loadedId == TopicId && loadedPage == page && model is not null)
+        {
+            return;
+        }
+
+        loadedId = TopicId;
+        loadedPage = page;
+        loading = model is null;
+        var settings = await Forums.GetSettingsAsync();
+        relative = !settings.IsSuccess || settings.Value.RelativeDates;
+        var result = await Forums.GetTopicAsync(TopicId, page, countView: !force && model is null);
+        loading = false;
+        if (!result.IsSuccess)
+        {
+            error = result.GetDisplayMessage();
+            model = null;
+            return;
+        }
+
+        error = null;
+        model = result.Value;
+        sizes = [model.PageSize];
+    }
+
+    private void Go(int page) => Navigation.NavigateTo($"topic/{TopicId}?page={page}");
+
+    private async Task ReplyAsync()
+    {
+        if (saving)
+        {
+            return;
+        }
+
+        saving = true;
+        var result = await Forums.CreatePostAsync(new CreatePostRequest(TopicId, reply.Text), Client.IpAddress);
+        saving = false;
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        reply.Text = string.Empty;
+        Toasts.Success("Reply posted.");
+        await LoadAsync(true);
+    }
+
+    private void Edit(PostModel post)
+    {
+        editing = post;
+        editText = post.Text;
+    }
+
+    private void CloseEdit() => editing = null;
+
+    private async Task SaveEditAsync()
+    {
+        if (editing is null || saving)
+        {
+            return;
+        }
+
+        saving = true;
+        var result = await Forums.UpdatePostAsync(new UpdatePostRequest(editing.Id, editText));
+        saving = false;
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        editing = null;
+        Toasts.Success("Post updated.");
+        await LoadAsync(true);
+    }
+
+    private async Task DeletePostAsync(PostModel post)
+    {
+        bool confirmed = await Dialogs.ConfirmAsync("Delete this post?", "This cannot be undone.", "Delete", isDestructive: true);
+        if (!confirmed)
+        {
+            return;
+        }
+
+        var result = await Forums.DeletePostAsync(post.Id);
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        Toasts.Success("Post deleted.");
+        var stillThere = await Forums.GetTopicAsync(TopicId, 1, countView: false);
+        if (!stillThere.IsSuccess)
+        {
+            Navigation.NavigateTo(model is null ? "./" : $"forum/{model.ForumId}");
+            return;
+        }
+
+        await LoadAsync(true);
+    }
+
+    private async Task DeleteTopicAsync()
+    {
+        if (model is null)
+        {
+            return;
+        }
+
+        bool confirmed = await Dialogs.ConfirmAsync("Delete this topic?", "The topic and every reply will be removed.", "Delete", isDestructive: true);
+        if (!confirmed)
+        {
+            return;
+        }
+
+        int forumId = model.ForumId;
+        var result = await Forums.DeleteTopicAsync(TopicId);
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        Toasts.Success("Topic deleted.");
+        Navigation.NavigateTo($"forum/{forumId}");
+    }
+
+    private async Task ToggleSubscriptionAsync()
+    {
+        if (model is null)
+        {
+            return;
+        }
+
+        var result = model.IsSubscribed && model.SubscriptionId is int id
+            ? await Forums.UnsubscribeAsync(id)
+            : await Forums.SubscribeToTopicAsync(model.Id);
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        await LoadAsync(true);
+    }
+
+    private async Task OpenMove()
+    {
+        var result = await Forums.GetForumChoicesAsync();
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        choices = result.Value;
+        destinationForumId = model?.ForumId ?? choices.FirstOrDefault()?.Id ?? 0;
+        moving = true;
+    }
+
+    private async Task MoveAsync()
+    {
+        var result = await Forums.MoveTopicAsync(TopicId, destinationForumId);
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        moving = false;
+        Toasts.Success("Topic moved.");
+        await LoadAsync(true);
+    }
+
+    private sealed class ReplyForm
+    {
+        public string Text { get; set; } = string.Empty;
+    }
+}

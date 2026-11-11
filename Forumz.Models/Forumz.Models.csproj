@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Requests and page models for Forumz.</Description>
+		<PackageTags>forums;forumz</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Forumz.Core\Forumz.Core.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Constants and options for Forumz with no web or database dependency.</Description>
+		<PackageTags>forums;forumz</PackageTags>
+	</PropertyGroup>
+
+</Project>

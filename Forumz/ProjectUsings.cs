@@ -1,0 +1,11 @@
+global using Forumz.Components;
+global using Forumz.Components.Shared;
+global using Forumz.Core;
+global using Forumz.Infrastructure;
+global using Forumz.Models;
+global using Forumz.Services;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Components;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Options;

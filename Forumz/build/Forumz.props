@@ -1,0 +1,9 @@
+<Project>
+	<!--
+	  The Web SDK only adds blazor.web.js to a host that has .razor files of its own.
+	  Forumz is a separate Blazor document, so a host that is not itself Blazor still needs the script.
+	-->
+	<PropertyGroup>
+		<RequiresAspNetWebAssets Condition="'$(RequiresAspNetWebAssets)' == ''">true</RequiresAspNetWebAssets>
+	</PropertyGroup>
+</Project>

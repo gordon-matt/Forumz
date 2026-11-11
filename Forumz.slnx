@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Forumz.Core/Forumz.Core.csproj" />
+  <Project Path="Forumz.Models/Forumz.Models.csproj" />
+  <Project Path="Forumz.Data/Forumz.Data.csproj" />
+  <Project Path="Forumz.Data.Sqlite/Forumz.Data.Sqlite.csproj" />
+  <Project Path="Forumz.Data.Sql/Forumz.Data.Sql.csproj" />
+  <Project Path="Forumz.Data.Npgsql/Forumz.Data.Npgsql.csproj" />
+  <Project Path="Forumz.Data.MySql/Forumz.Data.MySql.csproj" />
+  <Project Path="Forumz.Services/Forumz.Services.csproj" />
+  <Project Path="Forumz/Forumz.csproj" />
+  <Project Path="Forumz.Sample/Forumz.Sample.csproj" />
+  <Project Path="Forumz.Tests/Forumz.Tests.csproj" />
+</Solution>

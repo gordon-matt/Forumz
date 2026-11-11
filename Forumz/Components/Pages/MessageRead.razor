@@ -1,0 +1,86 @@
+@page "/messages/{MessageId:int}"
+@inject IForumService Forums
+@inject NavigationManager Navigation
+@inject ToastService Toasts
+@inject DialogService Dialogs
+@inject TimeProvider Clock
+
+<PageTitle>@(model?.Subject ?? "Message")</PageTitle>
+
+<div class="fz-page">
+    @if (loading)
+    {
+        <p class="nf-muted">Loading…</p>
+    }
+    else if (error is not null)
+    {
+        <EmptyState Icon="warning" Title="This message could not be opened" Description="@error" />
+    }
+    else if (model is not null)
+    {
+        <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
+            <a href="messages">Messages</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">@model.Subject</span>
+        </nav>
+        <PageHeader Title="@model.Subject" Icon="mail" Description="@(model.IsInbox ? $"From {model.FromName}" : $"To {model.ToName}")">
+            <Actions>
+                <button type="button" class="nf-button nf-button-danger" @onclick="DeleteAsync">Delete</button>
+            </Actions>
+        </PageHeader>
+        <article class="fz-post">
+            <div class="fz-post-head">
+                <strong>@(model.IsInbox ? model.FromName : model.ToName)</strong>
+                <span class="nf-hint" title="@ForumTime.Exact(model.CreatedOnUtc)">@ForumTime.Format(model.CreatedOnUtc, true, Clock)</span>
+            </div>
+            <PostBody Text="@model.Text" />
+        </article>
+        @if (model.IsInbox)
+        {
+            <a class="nf-button" href="@($"messages/new?to={Uri.EscapeDataString(model.FromName)}")">Reply</a>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int MessageId { get; set; }
+
+    private PrivateMessageModel? model;
+    private string? error;
+    private bool loading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true;
+        var result = await Forums.GetMessageAsync(MessageId);
+        loading = false;
+        if (!result.IsSuccess)
+        {
+            error = result.GetDisplayMessage();
+            model = null;
+            return;
+        }
+
+        error = null;
+        model = result.Value;
+    }
+
+    private async Task DeleteAsync()
+    {
+        bool confirmed = await Dialogs.ConfirmAsync("Delete this message?", "It will leave your list.", "Delete", isDestructive: true);
+        if (!confirmed)
+        {
+            return;
+        }
+
+        var result = await Forums.DeleteMessageAsync(MessageId);
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        Navigation.NavigateTo("messages");
+    }
+}

@@ -1,0 +1,71 @@
+@if (Topics.Count == 0)
+{
+    <EmptyState Icon="chat" Title="@EmptyTitle" Description="@EmptyDescription" />
+}
+else
+{
+    <div class="nf-table-wrap">
+        <table class="nf-table">
+            <thead>
+                <tr>
+                    <th>Topic</th>
+                    @if (ShowForum)
+                    {
+                        <th>Forum</th>
+                    }
+                    <th class="nf-cell-number">Replies</th>
+                    <th class="nf-cell-number">Views</th>
+                    <th>Last post</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var topic in Topics)
+                {
+                    <tr>
+                        <td>
+                            @if (topic.TopicType != ForumTopicType.Normal)
+                            {
+                                <span class="nf-badge nf-badge-accent">@topic.TopicType</span>
+                            }
+                            <a href="@($"topic/{topic.Id}")">@topic.Subject</a>
+                            <div class="nf-hint">@topic.AuthorName</div>
+                        </td>
+                        @if (ShowForum)
+                        {
+                            <td><a href="@($"forum/{topic.ForumId}")">@topic.ForumName</a></td>
+                        }
+                        <td class="nf-cell-number">@topic.ReplyCount</td>
+                        <td class="nf-cell-number">@topic.Views</td>
+                        <td class="nf-cell-nowrap">
+                            @if (topic.LastPostTime is DateTime whenUtc)
+                            {
+                                <span title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, Relative, Clock)</span>
+                                <div class="nf-hint">@topic.LastAuthorName</div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<TopicRowModel> Topics { get; set; } = [];
+
+    [Parameter]
+    public bool ShowForum { get; set; }
+
+    [Parameter]
+    public bool Relative { get; set; } = true;
+
+    [Parameter]
+    public string EmptyTitle { get; set; } = "No topics yet";
+
+    [Parameter]
+    public string EmptyDescription { get; set; } = "Start one, or check back later.";
+
+    [Inject]
+    private TimeProvider Clock { get; set; } = default!;
+}

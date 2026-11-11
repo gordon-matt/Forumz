@@ -1,0 +1,54 @@
+@inject IOptions<ForumzOptions> Options
+@inject IOptions<ForgeShellOptions> Shell
+@inject IOptions<ForgeUiOptions> UiOptions
+
+<!DOCTYPE html>
+<html lang="en" data-theme="@InitialTheme" data-nf-storage-key="@StorageKey">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="@($"{Options.Value.BasePath}/")" />
+    <title>@Options.Value.Title</title>
+    <script src="/_content/Heroicsoft.NetForge.Components/js/theme-init.js"
+            data-theme-key="@Ui.ThemeStorageKey"
+            data-default-theme="@DefaultScheme"
+            data-theme-areas="@AreasAttribute"></script>
+    <link rel="stylesheet" href="/_content/Heroicsoft.NetForge.Components/css/nf.css" />
+    @if (AccentCss is not null)
+    {
+        <style>@((MarkupString)AccentCss)</style>
+    }
+    <link rel="stylesheet" href="@EmbeddedAssets.Url("forumz.css")" />
+</head>
+
+<body>
+    <Routes @rendermode="ForumzRenderMode.Interactive" />
+    <script src="_framework/blazor.web.js"></script>
+    <script src="/_content/Heroicsoft.NetForge.Components/js/nf.js"></script>
+</body>
+
+</html>
+
+@code {
+    private ForgeUiOptions Ui => UiOptions.Value;
+
+    private string StorageKey => ThemeStorage.KeyFor(Ui.ThemeStorageKey, null);
+
+    private string? AreasAttribute => ThemeStorage.AreasAttribute(Ui.Areas);
+
+    private string? AccentCss => ForgeAccentCss.Build(Ui);
+
+    private string InitialTheme =>
+        string.Equals(ThemeStorage.ValueFor(null, Ui.Areas, Ui.DefaultColorScheme ?? "light"), "dark", StringComparison.OrdinalIgnoreCase)
+            ? "dark"
+            : "light";
+
+    private string DefaultScheme =>
+        Ui.DefaultColorScheme?.Trim().ToLowerInvariant() switch
+        {
+            "dark" => "dark",
+            "system" => "system",
+            _ => "light",
+        };
+}

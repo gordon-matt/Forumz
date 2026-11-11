@@ -1,0 +1,12 @@
+@using Forumz.Components.Shared
+
+<Router AppAssembly="typeof(Routes).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(ForumLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(ForumLayout)">
+            <EmptyState Icon="search" Title="That page isn't here" Description="The link doesn't match a forum page." />
+        </LayoutView>
+    </NotFound>
+</Router>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<Import Project="..\Forumz\build\Forumz.props" />
+
+	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Forumz\Forumz.csproj" />
+		<ProjectReference Include="..\Forumz.Data.MySql\Forumz.Data.MySql.csproj" />
+		<ProjectReference Include="..\Forumz.Data.Npgsql\Forumz.Data.Npgsql.csproj" />
+		<ProjectReference Include="..\Forumz.Data.Sql\Forumz.Data.Sql.csproj" />
+		<ProjectReference Include="..\Forumz.Data.Sqlite\Forumz.Data.Sqlite.csproj" />
+	</ItemGroup>
+
+</Project>

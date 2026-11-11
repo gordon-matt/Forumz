@@ -1,0 +1,21 @@
+<div class="fz-post-body">
+    @foreach (var paragraph in Paragraphs)
+    {
+        <p>@paragraph</p>
+    }
+</div>
+@if (!string.IsNullOrWhiteSpace(Signature))
+{
+    <p class="fz-signature">@Signature</p>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string Text { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Signature { get; set; }
+
+    private IEnumerable<string> Paragraphs =>
+        (Text ?? string.Empty).Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+}

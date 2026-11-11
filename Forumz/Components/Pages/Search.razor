@@ -1,0 +1,91 @@
+@page "/search"
+@inject IForumService Forums
+@inject NavigationManager Navigation
+
+<PageTitle>Search</PageTitle>
+
+<div class="fz-page">
+    <PageHeader Title="Search" Icon="search" Description="Looks through subjects and posts." />
+    <EditForm Model="form" OnValidSubmit="Run">
+        <Field Label="Keywords" For="search-q">
+            <InputText id="search-q" class="nf-input" @bind-Value="form.Keywords" />
+        </Field>
+        <div class="nf-form-actions">
+            <button type="submit" class="nf-button nf-button-primary">Search</button>
+        </div>
+    </EditForm>
+
+    @if (loading)
+    {
+        <p class="nf-muted">Searching…</p>
+    }
+    else if (error is not null)
+    {
+        <p class="nf-validation">@error</p>
+    }
+    else if (model is not null)
+    {
+        <TopicTable Topics="model.Topics" ShowForum="true" Relative="relative" EmptyTitle="Nothing matched" EmptyDescription="Try a different word." />
+        <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Query { get; set; }
+
+    [SupplyParameterFromQuery(Name = "page")]
+    public int PageNumber { get; set; }
+
+    private readonly SearchForm form = new();
+    private TopicListModel? model;
+    private string? error;
+    private bool loading;
+    private bool relative = true;
+    private int[] sizes = [20];
+    private string loaded = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        form.Keywords = Query ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(Query))
+        {
+            model = null;
+            error = null;
+            return;
+        }
+
+        int page = PageNumber < 1 ? 1 : PageNumber;
+        string key = $"{Query}:{page}";
+        if (loaded == key)
+        {
+            return;
+        }
+
+        loaded = key;
+        loading = true;
+        var settings = await Forums.GetSettingsAsync();
+        relative = !settings.IsSuccess || settings.Value.RelativeDates;
+        var result = await Forums.SearchAsync(Query, null, page);
+        loading = false;
+        if (!result.IsSuccess)
+        {
+            error = result.GetDisplayMessage();
+            model = null;
+            return;
+        }
+
+        error = null;
+        model = result.Value;
+        sizes = [model.PageSize];
+    }
+
+    private void Run() => Navigation.NavigateTo($"search?q={Uri.EscapeDataString(form.Keywords)}");
+
+    private void Go(int page) => Navigation.NavigateTo($"search?q={Uri.EscapeDataString(form.Keywords)}&page={page}");
+
+    private sealed class SearchForm
+    {
+        public string Keywords { get; set; } = string.Empty;
+    }
+}

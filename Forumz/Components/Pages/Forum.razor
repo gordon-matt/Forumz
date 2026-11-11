@@ -1,0 +1,107 @@
+@page "/forum/{ForumId:int}"
+@inject IForumService Forums
+@inject NavigationManager Navigation
+@inject ToastService Toasts
+
+<PageTitle>@(model?.Name ?? "Forum")</PageTitle>
+
+<div class="fz-page">
+    @if (loading)
+    {
+        <p class="nf-muted">Loading…</p>
+    }
+    else if (error is not null)
+    {
+        <EmptyState Icon="warning" Title="This forum could not be opened" Description="@error" />
+    }
+    else if (model is not null)
+    {
+        <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
+            <a href="./">Forums</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">@model.Name</span>
+        </nav>
+        <PageHeader Title="@model.Name" Icon="chat" Description="@(model.Description.Length == 0 ? null : model.Description)">
+            <Actions>
+                <div class="fz-actions">
+                    @if (model.CanSubscribe)
+                    {
+                        <button type="button" class="nf-button" @onclick="ToggleSubscriptionAsync">@(model.IsSubscribed ? "Unsubscribe" : "Subscribe")</button>
+                    }
+                    <a class="nf-button" href="@($"forum/{model.Id}/feed")">RSS</a>
+                    @if (model.CanStartTopic)
+                    {
+                        <a class="nf-button nf-button-primary" href="@($"forum/{model.Id}/new")">New topic</a>
+                    }
+                </div>
+            </Actions>
+        </PageHeader>
+        <TopicTable Topics="model.Topics" Relative="relative" EmptyTitle="No topics yet" EmptyDescription="Be the first to start one." />
+        <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int ForumId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "page")]
+    public int PageNumber { get; set; }
+
+    private ForumPageModel? model;
+    private string? error;
+    private bool loading = true;
+    private bool relative = true;
+    private int[] sizes = [20];
+    private int loadedId;
+    private int loadedPage = -1;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        int page = PageNumber < 1 ? 1 : PageNumber;
+        if (loadedId == ForumId && loadedPage == page && model is not null)
+        {
+            return;
+        }
+
+        loadedId = ForumId;
+        loadedPage = page;
+        loading = true;
+        var settings = await Forums.GetSettingsAsync();
+        relative = !settings.IsSuccess || settings.Value.RelativeDates;
+        var result = await Forums.GetForumAsync(ForumId, page);
+        loading = false;
+        if (!result.IsSuccess)
+        {
+            error = result.GetDisplayMessage();
+            model = null;
+            return;
+        }
+
+        error = null;
+        model = result.Value;
+        sizes = [model.PageSize];
+    }
+
+    private void Go(int page) => Navigation.NavigateTo($"forum/{ForumId}?page={page}");
+
+    private async Task ToggleSubscriptionAsync()
+    {
+        if (model is null)
+        {
+            return;
+        }
+
+        var result = model.IsSubscribed && model.SubscriptionId is int id
+            ? await Forums.UnsubscribeAsync(id)
+            : await Forums.SubscribeToForumAsync(model.Id);
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        loadedPage = -1;
+        await OnParametersSetAsync();
+    }
+}

@@ -1,0 +1,78 @@
+@page "/forum/{ForumId:int}/new"
+@inject IForumService Forums
+@inject IForumAccess Access
+@inject NavigationManager Navigation
+@inject ForumClientContext Client
+@inject ToastService Toasts
+
+<PageTitle>New topic</PageTitle>
+
+<div class="fz-page">
+    <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
+        <a href="./">Forums</a>
+        <span aria-hidden="true">/</span>
+        <a href="@($"forum/{ForumId}")">Forum</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">New topic</span>
+    </nav>
+    <PageHeader Title="New topic" Icon="plus" Description="The first post is the topic. You can reply to it afterwards." />
+    <EditForm Model="form" OnValidSubmit="SaveAsync">
+        <Field Label="Subject" For="topic-subject">
+            <InputText id="topic-subject" class="nf-input" @bind-Value="form.Subject" />
+        </Field>
+        @if (Access.CanModerate())
+        {
+            <Field Label="Type" For="topic-type">
+                <InputSelect id="topic-type" class="nf-input" @bind-Value="form.TopicType">
+                    <option value="@ForumTopicType.Normal">Normal</option>
+                    <option value="@ForumTopicType.Sticky">Sticky</option>
+                    <option value="@ForumTopicType.Announcement">Announcement</option>
+                </InputSelect>
+            </Field>
+        }
+        <Field Label="Post" For="topic-text">
+            <InputTextArea id="topic-text" class="nf-textarea" rows="8" @bind-Value="form.Text" />
+        </Field>
+        <div class="nf-form-actions">
+            <a class="nf-button" href="@($"forum/{ForumId}")">Cancel</a>
+            <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post topic</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int ForumId { get; set; }
+
+    private readonly TopicForm form = new();
+    private bool saving;
+
+    private async Task SaveAsync()
+    {
+        if (saving)
+        {
+            return;
+        }
+
+        saving = true;
+        var result = await Forums.CreateTopicAsync(new CreateTopicRequest(ForumId, form.Subject, form.Text, form.TopicType), Client.IpAddress);
+        saving = false;
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        Toasts.Success("Topic posted.");
+        Navigation.NavigateTo($"topic/{result.Value}");
+    }
+
+    private sealed class TopicForm
+    {
+        public string Subject { get; set; } = string.Empty;
+
+        public string Text { get; set; } = string.Empty;
+
+        public ForumTopicType TopicType { get; set; } = ForumTopicType.Normal;
+    }
+}

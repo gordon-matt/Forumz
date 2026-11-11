@@ -1,0 +1,62 @@
+@page "/active"
+@inject IForumService Forums
+@inject NavigationManager Navigation
+
+<PageTitle>Active discussions</PageTitle>
+
+<div class="fz-page">
+    <PageHeader Title="Active discussions" Icon="clock" Description="Topics with the newest replies." />
+    @if (loading)
+    {
+        <p class="nf-muted">Loading…</p>
+    }
+    else if (error is not null)
+    {
+        <EmptyState Icon="warning" Title="Active discussions could not be loaded" Description="@error" />
+    }
+    else if (model is not null)
+    {
+        <TopicTable Topics="model.Topics" ShowForum="true" Relative="relative" EmptyTitle="Nothing has been posted" EmptyDescription="Topics show up here after the first post." />
+        <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "page")]
+    public int PageNumber { get; set; }
+
+    private TopicListModel? model;
+    private string? error;
+    private bool loading = true;
+    private bool relative = true;
+    private int[] sizes = [20];
+    private int loadedPage = -1;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        int page = PageNumber < 1 ? 1 : PageNumber;
+        if (loadedPage == page && model is not null)
+        {
+            return;
+        }
+
+        loadedPage = page;
+        loading = true;
+        var settings = await Forums.GetSettingsAsync();
+        relative = !settings.IsSuccess || settings.Value.RelativeDates;
+        var result = await Forums.GetActiveAsync(null, page);
+        loading = false;
+        if (!result.IsSuccess)
+        {
+            error = result.GetDisplayMessage();
+            model = null;
+            return;
+        }
+
+        error = null;
+        model = result.Value;
+        sizes = [model.PageSize];
+    }
+
+    private void Go(int page) => Navigation.NavigateTo($"active?page={page}");
+}

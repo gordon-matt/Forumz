@@ -1,0 +1,32 @@
+<Project>
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<Version>1.0.0</Version>
+		<Authors>Matt Gordon</Authors>
+		<Company>Matt Gordon</Company>
+		<Product>Forumz</Product>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/gordon-matt/Forumz</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/gordon-matt/Forumz</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<XmlDocProjectDir>$([System.String]::Copy('$(MSBuildProjectDirectory)').Replace('\', '/').ToLowerInvariant())</XmlDocProjectDir>
+		<XmlDocProjectName>$([System.String]::Copy('$(MSBuildProjectName)').ToLowerInvariant())</XmlDocProjectName>
+		<XmlDocOptOut Condition="$(XmlDocProjectDir.Contains('/tests/')) Or $(XmlDocProjectDir.EndsWith('/tests')) Or $(XmlDocProjectDir.Contains('/sample/')) Or $(XmlDocProjectDir.EndsWith('/sample')) Or $(XmlDocProjectName.Contains('.tests')) Or $(XmlDocProjectName.Contains('.sample'))">true</XmlDocOptOut>
+		<GenerateDocumentationFile Condition="'$(XmlDocOptOut)' != 'true'">true</GenerateDocumentationFile>
+		<GenerateDocumentationFile Condition="'$(XmlDocOptOut)' == 'true'">false</GenerateDocumentationFile>
+		<WarningsAsErrors Condition="'$(GenerateDocumentationFile)' == 'true'">$(WarningsAsErrors);CS1591</WarningsAsErrors>
+	</PropertyGroup>
+
+</Project>

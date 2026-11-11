@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<Description>A Blazor forum that mounts into any ASP.NET Core site.</Description>
+		<PackageTags>forums;forumz;blazor;razor-class-library</PackageTags>
+		<RootNamespace>Forumz</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Forumz.Services\Forumz.Services.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Assets\*" LogicalName="Forumz.Assets.%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="build\Forumz.props" Pack="true" PackagePath="build;buildTransitive" />
+	</ItemGroup>
+
+</Project>

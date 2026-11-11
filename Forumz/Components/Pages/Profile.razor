@@ -1,0 +1,81 @@
+@page "/profile"
+@inject IForumService Forums
+@inject ToastService Toasts
+
+<PageTitle>Profile</PageTitle>
+
+<div class="fz-page">
+    @if (loading)
+    {
+        <p class="nf-muted">Loading…</p>
+    }
+    else if (error is not null)
+    {
+        <EmptyState Icon="warning" Title="Your profile could not be loaded" Description="@error" />
+    }
+    else
+    {
+        <PageHeader Title="Your profile" Icon="people" Description="@($"{posts} posts")" />
+        <EditForm Model="form" OnValidSubmit="SaveAsync">
+            <Field Label="Display name" For="profile-name">
+                <InputText id="profile-name" class="nf-input" @bind-Value="form.DisplayName" />
+                <span class="nf-hint">This is the name on your posts. People use it when they send you a message.</span>
+            </Field>
+            <Field Label="Signature" For="profile-signature">
+                <InputTextArea id="profile-signature" class="nf-textarea" rows="4" @bind-Value="form.Signature" />
+            </Field>
+            <div class="nf-form-actions">
+                <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Save</button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private readonly ProfileForm form = new();
+    private string? error;
+    private bool loading = true;
+    private bool saving;
+    private int posts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Forums.GetProfileAsync();
+        loading = false;
+        if (!result.IsSuccess)
+        {
+            error = result.GetDisplayMessage();
+            return;
+        }
+
+        form.DisplayName = result.Value.DisplayName;
+        form.Signature = result.Value.Signature;
+        posts = result.Value.PostCount;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (saving)
+        {
+            return;
+        }
+
+        saving = true;
+        var result = await Forums.SaveProfileAsync(new SaveProfileRequest(form.DisplayName, form.Signature));
+        saving = false;
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        Toasts.Success("Profile saved.");
+    }
+
+    private sealed class ProfileForm
+    {
+        public string DisplayName { get; set; } = string.Empty;
+
+        public string Signature { get; set; } = string.Empty;
+    }
+}

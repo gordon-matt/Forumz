@@ -1,0 +1,102 @@
+@page "/messages"
+@inject IForumService Forums
+@inject NavigationManager Navigation
+@inject TimeProvider Clock
+
+<PageTitle>Messages</PageTitle>
+
+<div class="fz-page">
+    <PageHeader Title="Messages" Icon="inbox" Description="Private messages with other members.">
+        <Actions>
+            <a class="nf-button nf-button-primary" href="messages/new">New message</a>
+        </Actions>
+    </PageHeader>
+    <div class="fz-actions">
+        <a class="nf-button @(folder == "sent" ? null : "nf-button-primary")" href="messages">Inbox</a>
+        <a class="nf-button @(folder == "sent" ? "nf-button-primary" : null)" href="messages?folder=sent">Sent</a>
+    </div>
+    @if (loading)
+    {
+        <p class="nf-muted">Loading…</p>
+    }
+    else if (error is not null)
+    {
+        <EmptyState Icon="warning" Title="Messages could not be loaded" Description="@error" />
+    }
+    else if (model is not null && model.Items.Count == 0)
+    {
+        <EmptyState Icon="inbox" Title="Nothing here" Description="Send a message, or wait for one." />
+    }
+    else if (model is not null)
+    {
+        <div class="nf-table-wrap">
+            <table class="nf-table">
+                <thead>
+                    <tr>
+                        <th>@(folder == "sent" ? "To" : "From")</th>
+                        <th>Subject</th>
+                        <th>When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in model.Items)
+                    {
+                        <tr>
+                            <td>@item.OtherName</td>
+                            <td>
+                                <a href="@($"messages/{item.Id}")">@item.Subject</a>
+                                @if (!item.IsRead && folder != "sent")
+                                {
+                                    <span class="nf-badge nf-badge-accent">New</span>
+                                }
+                            </td>
+                            <td class="nf-cell-nowrap" title="@ForumTime.Exact(item.CreatedOnUtc)">@ForumTime.Format(item.CreatedOnUtc, true, Clock)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "folder")]
+    public string? Folder { get; set; }
+
+    [SupplyParameterFromQuery(Name = "page")]
+    public int PageNumber { get; set; }
+
+    private MessageListModel? model;
+    private string? error;
+    private bool loading = true;
+    private int[] sizes = [20];
+    private string folder = "inbox";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        folder = string.Equals(Folder, "sent", StringComparison.OrdinalIgnoreCase) ? "sent" : "inbox";
+        loading = true;
+        int page = PageNumber < 1 ? 1 : PageNumber;
+        var result = folder == "sent"
+            ? await Forums.GetSentAsync(page)
+            : await Forums.GetInboxAsync(page);
+        loading = false;
+        if (!result.IsSuccess)
+        {
+            error = result.GetDisplayMessage();
+            model = null;
+            return;
+        }
+
+        error = null;
+        model = result.Value;
+        sizes = [model.PageSize];
+    }
+
+    private void Go(int page)
+    {
+        string query = folder == "sent" ? $"messages?folder=sent&page={page}" : $"messages?page={page}";
+        Navigation.NavigateTo(query);
+    }
+}
