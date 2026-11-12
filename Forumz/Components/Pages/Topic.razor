@@ -22,85 +22,87 @@
         <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
             <a href="./">Forums</a>
             <span aria-hidden="true">/</span>
+            <span>@model.GroupName</span>
+            <span aria-hidden="true">/</span>
             <a href="@($"forum/{model.ForumId}")">@model.ForumName</a>
             <span aria-hidden="true">/</span>
             <span aria-current="page">@model.Subject</span>
         </nav>
-        <PageHeader Title="@model.Subject" Icon="chat" Description="@($"{model.Views} views")">
+        <ForumHeading Title="@model.Subject" Description="@($"{model.Views} views")">
             <Actions>
-                <div class="fz-actions">
-                    @if (model.TopicType != ForumTopicType.Normal)
-                    {
-                        <span class="nf-badge nf-badge-accent">@model.TopicType</span>
-                    }
-                    @if (model.CanSubscribe)
-                    {
-                        <button type="button" class="nf-button" @onclick="ToggleSubscriptionAsync">@(model.IsSubscribed ? "Unsubscribe" : "Subscribe")</button>
-                    }
-                    @if (model.CanModerate)
-                    {
-                        <button type="button" class="nf-button" @onclick="OpenMove">Move</button>
-                        <button type="button" class="nf-button nf-button-danger" @onclick="DeleteTopicAsync">Delete</button>
-                    }
-                </div>
+                @if (model.TopicType != ForumTopicType.Normal)
+                {
+                    <span class="nf-badge nf-badge-accent">@model.TopicType</span>
+                }
+                @if (model.CanSubscribe)
+                {
+                    <button type="button" class="nf-button" @onclick="ToggleSubscriptionAsync">@(model.IsSubscribed ? "Unsubscribe" : "Subscribe")</button>
+                }
+                @if (model.CanModerate)
+                {
+                    <button type="button" class="nf-button" @onclick="OpenMove">Move</button>
+                    <button type="button" class="nf-button nf-button-danger" @onclick="DeleteTopicAsync">Delete</button>
+                }
             </Actions>
-        </PageHeader>
+        </ForumHeading>
 
         @foreach (var post in model.Posts)
         {
-            <table class="fz-post">
-                <thead>
-                    <tr>
-                        <th class="fz-post-user">@post.AuthorName</th>
-                        <th>
-                            <span class="nf-hint" title="@ForumTime.Exact(post.CreatedOnUtc)">@ForumTime.Format(post.CreatedOnUtc, relative, Clock)</span>
+            <article class="fz-post">
+                <header class="fz-post-user">
+                    <span class="fz-avatar" aria-hidden="true">@ForumInitials.From(post.AuthorName)</span>
+                    <div>
+                        <span class="fz-user-name">@post.AuthorName</span>
+                        <div class="fz-sub">@post.AuthorPostCount posts</div>
+                    </div>
+                </header>
+                <div class="fz-post-main">
+                    <div class="fz-post-body">
+                        <div class="nf-markdown">@((MarkupString)post.Html)</div>
+                        @if (!string.IsNullOrWhiteSpace(post.Signature))
+                        {
+                            <div class="fz-signature">@post.Signature</div>
+                        }
+                    </div>
+                    <footer class="fz-post-foot">
+                        <span title="@ForumTime.Exact(post.CreatedOnUtc)">
+                            @ForumTime.Format(post.CreatedOnUtc, relative, Clock)
                             @if (post.UpdatedOnUtc > post.CreatedOnUtc.AddSeconds(1))
                             {
-                                <span class="nf-hint"> · edited</span>
+                                <span> · edited</span>
                             }
-                        </th>
-                        <th style="text-align: right; width: 1%; white-space: nowrap;">
-                            @if (post.CanEdit)
-                            {
-                                <button type="button" class="nf-button" @onclick="() => Edit(post)">Edit</button>
-                            }
-                            @if (post.CanDelete)
-                            {
-                                <button type="button" class="nf-button nf-button-danger" @onclick="() => DeletePostAsync(post)">Delete</button>
-                            }
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="fz-post-user">
-                            <span class="fz-user-name">@post.AuthorName</span>
-                            <ul class="fz-user-stats">
-                                <li><span>Posts</span><span>@post.AuthorPostCount</span></li>
-                            </ul>
-                        </td>
-                        <td colspan="2">
-                            <div class="nf-markdown">@((MarkupString)post.Html)</div>
-                            @if (!string.IsNullOrWhiteSpace(post.Signature))
-                            {
-                                <div class="fz-signature">@post.Signature</div>
-                            }
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        </span>
+                        @if (post.CanEdit || post.CanDelete)
+                        {
+                            <span class="fz-actions">
+                                @if (post.CanEdit)
+                                {
+                                    <button type="button" class="nf-button" @onclick="() => Edit(post)">Edit</button>
+                                }
+                                @if (post.CanDelete)
+                                {
+                                    <button type="button" class="nf-button nf-button-danger" @onclick="() => DeletePostAsync(post)">Delete</button>
+                                }
+                            </span>
+                        }
+                    </footer>
+                </div>
+            </article>
         }
 
         <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
 
         @if (model.CanReply)
         {
-            <EditForm Model="reply" OnValidSubmit="ReplyAsync">
-                <PostComposer @bind-Text="reply.Text" @bind-Format="reply.Format" Label="Reply" />
-                <div class="nf-form-actions">
-                    <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post reply</button>
-                </div>
-            </EditForm>
+            <section class="fz-board">
+                <h2 class="fz-board-title">Reply</h2>
+                <EditForm Model="reply" OnValidSubmit="ReplyAsync" class="fz-compose">
+                    <PostComposer @bind-Text="reply.Text" @bind-Format="reply.Format" Label="Reply" />
+                    <div class="nf-form-actions">
+                        <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post reply</button>
+                    </div>
+                </EditForm>
+            </section>
         }
     }
 </div>

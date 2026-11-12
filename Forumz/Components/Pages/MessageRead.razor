@@ -23,13 +23,13 @@
             <span aria-hidden="true">/</span>
             <span aria-current="page">@model.Subject</span>
         </nav>
-        <PageHeader Title="@model.Subject" Icon="mail" Description="@(model.IsInbox ? $"From {model.FromName}" : $"To {model.ToName}")">
+        <ForumHeading Title="@model.Subject" Description="@(model.IsInbox ? $"From {model.FromName}" : $"To {model.ToName}")">
             <Actions>
                 <button type="button" class="nf-button nf-button-danger" @onclick="DeleteAsync">Delete</button>
             </Actions>
-        </PageHeader>
-        <article class="fz-post">
-            <div class="fz-post-head">
+        </ForumHeading>
+        <article class="fz-letter">
+            <div class="fz-letter-head">
                 <strong>@(model.IsInbox ? model.FromName : model.ToName)</strong>
                 <span class="nf-hint" title="@ForumTime.Exact(model.CreatedOnUtc)">@ForumTime.Format(model.CreatedOnUtc, true, Clock)</span>
             </div>

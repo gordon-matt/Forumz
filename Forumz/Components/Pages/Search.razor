@@ -5,7 +5,7 @@
 <PageTitle>Search</PageTitle>
 
 <div class="fz-page">
-    <PageHeader Title="Search" Icon="search" Description="Looks through subjects and posts." />
+    <ForumHeading Title="Search" Description="Looks through subjects and posts." />
     <EditForm Model="form" OnValidSubmit="Run">
         <Field Label="Keywords" For="search-q">
             <InputText id="search-q" class="nf-input" @bind-Value="form.Keywords" />

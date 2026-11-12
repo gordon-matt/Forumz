@@ -19,23 +19,23 @@
         <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
             <a href="./">Forums</a>
             <span aria-hidden="true">/</span>
+            <span>@model.GroupName</span>
+            <span aria-hidden="true">/</span>
             <span aria-current="page">@model.Name</span>
         </nav>
-        <PageHeader Title="@model.Name" Icon="chat" Description="@(model.Description.Length == 0 ? null : model.Description)">
+        <ForumHeading Title="@model.Name" Description="@(model.Description.Length == 0 ? null : model.Description)">
             <Actions>
-                <div class="fz-actions">
-                    @if (model.CanSubscribe)
-                    {
-                        <button type="button" class="nf-button" @onclick="ToggleSubscriptionAsync">@(model.IsSubscribed ? "Unsubscribe" : "Subscribe")</button>
-                    }
-                    <a class="nf-button" href="@($"forum/{model.Id}/feed")">RSS</a>
-                    @if (model.CanStartTopic)
-                    {
-                        <a class="nf-button nf-button-primary" href="@($"forum/{model.Id}/new")">New topic</a>
-                    }
-                </div>
+                @if (model.CanSubscribe)
+                {
+                    <button type="button" class="nf-button" @onclick="ToggleSubscriptionAsync">@(model.IsSubscribed ? "Unsubscribe" : "Subscribe")</button>
+                }
+                <a class="nf-button" href="@($"forum/{model.Id}/feed")">RSS</a>
+                @if (model.CanStartTopic)
+                {
+                    <a class="nf-button nf-button-primary" href="@($"forum/{model.Id}/new")">New topic</a>
+                }
             </Actions>
-        </PageHeader>
+        </ForumHeading>
         <TopicTable Topics="model.Topics" Relative="relative" EmptyTitle="No topics yet" EmptyDescription="Be the first to start one." />
         <Pager PageNumber="model.PageNumber" PageSize="model.PageSize" TotalCount="model.TotalCount" PageSizes="sizes" PageNumberChanged="Go" />
     }

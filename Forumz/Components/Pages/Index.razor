@@ -5,7 +5,7 @@
 <PageTitle>Forums</PageTitle>
 
 <div class="fz-page">
-    <PageHeader Title="Forums" Icon="chat" Description="Groups, forums, and the latest reply in each.">
+    <ForumHeading Title="Forums" Description="Groups, forums, and the latest reply in each.">
         <Actions>
             <a class="nf-button" href="feed">RSS</a>
             @if (model?.CanManage == true)
@@ -13,7 +13,7 @@
                 <a class="nf-button nf-button-primary" href="manage">Manage</a>
             }
         </Actions>
-    </PageHeader>
+    </ForumHeading>
 
     @if (loading)
     {
@@ -35,17 +35,16 @@
                 <h2 class="fz-board-title">@group.Name</h2>
                 @if (group.Forums.Count == 0)
                 {
-                    <p class="nf-muted" style="padding: 0.85rem 1rem;">No forums in this group.</p>
+                    <p class="fz-empty">No forums in this group.</p>
                 }
                 else
                 {
                     <table>
                         <thead>
                             <tr>
-                                <th>Forum</th>
-                                <th class="fz-count">Topics</th>
-                                <th class="fz-count">Posts</th>
-                                <th class="fz-latest">Last post</th>
+                                <th scope="col">Forum</th>
+                                <th class="fz-count" scope="col">Activity</th>
+                                <th class="fz-latest" scope="col">Last post</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,19 +52,26 @@
                             {
                                 <tr>
                                     <td>
-                                        <div class="fz-forum-title"><a href="@($"forum/{forum.Id}")">@forum.Name</a></div>
-                                        @if (forum.Description.Length > 0)
-                                        {
-                                            <div class="nf-hint">@forum.Description</div>
-                                        }
+                                        <div class="fz-forum-title">
+                                            <span class="fz-mark" aria-hidden="true"><Icon Name="chat" /></span>
+                                            <div>
+                                                <div class="fz-subject"><a href="@($"forum/{forum.Id}")">@forum.Name</a></div>
+                                                @if (forum.Description.Length > 0)
+                                                {
+                                                    <div class="fz-sub">@forum.Description</div>
+                                                }
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td class="fz-count">@forum.TopicCount</td>
-                                    <td class="fz-count">@forum.PostCount</td>
+                                    <td class="fz-count">
+                                        <span><b>@forum.TopicCount</b> topics</span>
+                                        <span><b>@forum.PostCount</b> posts</span>
+                                    </td>
                                     <td class="fz-latest">
                                         @if (forum.LastPostTime is DateTime whenUtc && forum.LastTopicId is int topicId)
                                         {
                                             <a href="@($"topic/{topicId}")" title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, relative, Clock)</a>
-                                            <div class="nf-hint">@forum.LastAuthorName</div>
+                                            <div class="fz-sub">@forum.LastAuthorName</div>
                                         }
                                         else
                                         {

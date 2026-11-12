@@ -6,11 +6,11 @@
 <PageTitle>Messages</PageTitle>
 
 <div class="fz-page">
-    <PageHeader Title="Messages" Icon="inbox" Description="Private messages with other members.">
+    <ForumHeading Title="Messages" Description="Private messages with other members.">
         <Actions>
             <a class="nf-button nf-button-primary" href="messages/new">New message</a>
         </Actions>
-    </PageHeader>
+    </ForumHeading>
     <div class="fz-actions">
         <a class="nf-button @(folder == "sent" ? null : "nf-button-primary")" href="messages">Inbox</a>
         <a class="nf-button @(folder == "sent" ? "nf-button-primary" : null)" href="messages?folder=sent">Sent</a>

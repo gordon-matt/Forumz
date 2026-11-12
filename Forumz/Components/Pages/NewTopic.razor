@@ -15,7 +15,7 @@
         <span aria-hidden="true">/</span>
         <span aria-current="page">New topic</span>
     </nav>
-    <PageHeader Title="New topic" Icon="plus" Description="The first post is the topic. You can reply to it afterwards." />
+    <ForumHeading Title="New topic" Description="The first post is the topic. You can reply to it afterwards." />
     <EditForm Model="form" OnValidSubmit="SaveAsync">
         <Field Label="Subject" For="topic-subject">
             <InputText id="topic-subject" class="nf-input" @bind-Value="form.Subject" />

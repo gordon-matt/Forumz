@@ -8,39 +8,42 @@ else
         <table>
             <thead>
                 <tr>
-                    <th>Topic</th>
+                    <th scope="col">Topic</th>
                     @if (ShowForum)
                     {
-                        <th>Forum</th>
+                        <th class="fz-forum-cell" scope="col">Forum</th>
                     }
-                    <th class="fz-count">Replies</th>
-                    <th class="fz-count">Views</th>
-                    <th class="fz-latest">Last post</th>
+                    <th class="fz-count" scope="col">Activity</th>
+                    <th class="fz-latest" scope="col">Last post</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var topic in Topics)
                 {
-                    <tr>
+                    <tr class="@RowClass(topic.TopicType)">
                         <td>
-                            @if (topic.TopicType != ForumTopicType.Normal)
-                            {
-                                <span class="nf-badge nf-badge-accent fz-topic-type">@topic.TopicType</span>
-                            }
-                            <div class="fz-forum-title"><a href="@($"topic/{topic.Id}")">@topic.Subject</a></div>
-                            <div class="nf-hint">@topic.AuthorName</div>
+                            <div class="fz-subject">
+                                <a href="@($"topic/{topic.Id}")">@topic.Subject</a>
+                                @if (topic.TopicType != ForumTopicType.Normal)
+                                {
+                                    <span class="nf-badge nf-badge-accent">@topic.TopicType</span>
+                                }
+                            </div>
+                            <div class="fz-sub">Started by @topic.AuthorName</div>
                         </td>
                         @if (ShowForum)
                         {
-                            <td><a href="@($"forum/{topic.ForumId}")">@topic.ForumName</a></td>
+                            <td class="fz-forum-cell"><a href="@($"forum/{topic.ForumId}")">@topic.ForumName</a></td>
                         }
-                        <td class="fz-count">@topic.ReplyCount</td>
-                        <td class="fz-count">@topic.Views</td>
+                        <td class="fz-count">
+                            <span><b>@topic.ReplyCount</b> replies</span>
+                            <span><b>@topic.Views</b> views</span>
+                        </td>
                         <td class="fz-latest">
                             @if (topic.LastPostTime is DateTime whenUtc)
                             {
                                 <span title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, Relative, Clock)</span>
-                                <div class="nf-hint">@topic.LastAuthorName</div>
+                                <div class="fz-sub">@topic.LastAuthorName</div>
                             }
                         </td>
                     </tr>
@@ -68,4 +71,11 @@ else
 
     [Inject]
     private TimeProvider Clock { get; set; } = default!;
+
+    private static string? RowClass(ForumTopicType type) => type switch
+    {
+        ForumTopicType.Sticky => "is-sticky",
+        ForumTopicType.Announcement => "is-announce",
+        _ => null,
+    };
 }

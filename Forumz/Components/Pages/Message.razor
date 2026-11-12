@@ -11,7 +11,7 @@
         <span aria-hidden="true">/</span>
         <span aria-current="page">New</span>
     </nav>
-    <PageHeader Title="New message" Icon="send" Description="Use the name they show on their posts." />
+    <ForumHeading Title="New message" Description="Use the name they show on their posts." />
     <EditForm Model="form" OnValidSubmit="SendAsync">
         <Field Label="To" For="pm-to">
             <InputText id="pm-to" class="nf-input" @bind-Value="form.To" />

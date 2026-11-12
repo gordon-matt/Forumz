@@ -15,7 +15,7 @@
     }
     else
     {
-        <PageHeader Title="Your profile" Icon="people" Description="@($"{posts} posts")" />
+        <ForumHeading Title="Your profile" Description="@($"{posts} posts")" />
         <EditForm Model="form" OnValidSubmit="SaveAsync">
             <Field Label="Display name" For="profile-name">
                 <InputText id="profile-name" class="nf-input" @bind-Value="form.DisplayName" />
