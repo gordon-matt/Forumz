@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+@inject IOptions<ForumzOptions> Options
+@inject ForumUrls Urls
+
+@* The host already has its top bar. The forum's links sit under it, and the page is the body. *@
+@if (Options.Value.PublicLayout is { } layout)
+{
+    <LayoutView Layout="layout">
+        <HeadContent>
+            <link rel="stylesheet" href="@Urls.Stylesheet" />
+        </HeadContent>
+        <ForumSubNav />
+        @Body
+    </LayoutView>
+}
+else
+{
+    @Body
+}

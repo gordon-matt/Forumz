@@ -1,5 +1,6 @@
 @page "/messages/{MessageId:int}"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject NavigationManager Navigation
 @inject ToastService Toasts
 @inject DialogService Dialogs
@@ -19,7 +20,7 @@
     else if (model is not null)
     {
         <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
-            <a href="messages">Messages</a>
+            <a href="@Urls.To("messages")">Messages</a>
             <span aria-hidden="true">/</span>
             <span aria-current="page">@model.Subject</span>
         </nav>
@@ -37,7 +38,7 @@
         </article>
         @if (model.IsInbox)
         {
-            <a class="nf-button" href="@($"messages/new?to={Uri.EscapeDataString(model.FromName)}")">Reply</a>
+            <a class="nf-button" href="@Urls.To($"messages/new?to={Uri.EscapeDataString(model.FromName)}")">Reply</a>
         }
     }
 </div>
@@ -81,6 +82,6 @@
             return;
         }
 
-        Navigation.NavigateTo("messages");
+        Navigation.NavigateTo(Urls.To("messages"));
     }
 }

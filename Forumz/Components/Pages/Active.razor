@@ -1,5 +1,6 @@
 @page "/active"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject NavigationManager Navigation
 
 <PageTitle>Active discussions</PageTitle>
@@ -58,5 +59,5 @@
         sizes = [model.PageSize];
     }
 
-    private void Go(int page) => Navigation.NavigateTo($"active?page={page}");
+    private void Go(int page) => Navigation.NavigateTo(Urls.To($"active?page={page}"));
 }

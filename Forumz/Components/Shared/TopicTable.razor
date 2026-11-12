@@ -23,7 +23,7 @@ else
                     <tr class="@RowClass(topic.TopicType)">
                         <td>
                             <div class="fz-subject">
-                                <a href="@($"topic/{topic.Id}")">@topic.Subject</a>
+                                <a href="@Urls.To($"topic/{topic.Id}")">@topic.Subject</a>
                                 @if (topic.TopicType != ForumTopicType.Normal)
                                 {
                                     <span class="nf-badge nf-badge-accent">@topic.TopicType</span>
@@ -33,7 +33,7 @@ else
                         </td>
                         @if (ShowForum)
                         {
-                            <td class="fz-forum-cell"><a href="@($"forum/{topic.ForumId}")">@topic.ForumName</a></td>
+                            <td class="fz-forum-cell"><a href="@Urls.To($"forum/{topic.ForumId}")">@topic.ForumName</a></td>
                         }
                         <td class="fz-count">
                             <span><b>@topic.ReplyCount</b> replies</span>
@@ -71,6 +71,9 @@ else
 
     [Inject]
     private TimeProvider Clock { get; set; } = default!;
+
+    [Inject]
+    private ForumUrls Urls { get; set; } = default!;
 
     private static string? RowClass(ForumTopicType type) => type switch
     {

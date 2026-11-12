@@ -13,13 +13,13 @@ public sealed class ForumzMenuContributor(IOptions<ForumzOptions> options) : INe
 
     /// <inheritdoc />
     public void Contribute(INetForgeMenuGroupBuilder group, Action<NetForgeMenuItemOptions>? configure) => group.AddCustom(item =>
-                                                                                                                {
-                                                                                                                    item.Title = options.Value.Title;
-                                                                                                                    item.Icon = "chat";
-                                                                                                                    item.Url = options.Value.BasePath;
-                                                                                                                    item.External = true;
-                                                                                                                    configure?.Invoke(item);
-                                                                                                                });
+    {
+        item.Title = options.Value.Title;
+        item.Icon = "chat";
+        item.Url = options.Value.BasePath;
+        item.External = options.Value.PublicLayout is null;
+        configure?.Invoke(item);
+    });
 }
 
 /// <summary>Places the forum on a shared menu.</summary>

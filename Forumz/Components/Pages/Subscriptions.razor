@@ -1,5 +1,6 @@
 @page "/subscriptions"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject NavigationManager Navigation
 @inject ToastService Toasts
 @inject TimeProvider Clock
@@ -38,12 +39,12 @@
                             <td>
                                 @if (item.TopicId is int topicId)
                                 {
-                                    <a href="@($"topic/{topicId}")">@item.TopicSubject</a>
+                                    <a href="@Urls.To($"topic/{topicId}")">@item.TopicSubject</a>
                                     <div class="nf-hint">@item.ForumName</div>
                                 }
                                 else
                                 {
-                                    <a href="@($"forum/{item.ForumId}")">@item.ForumName</a>
+                                    <a href="@Urls.To($"forum/{item.ForumId}")">@item.ForumName</a>
                                     <div class="nf-hint">Whole forum</div>
                                 }
                             </td>
@@ -88,7 +89,7 @@
         sizes = [model.PageSize];
     }
 
-    private void Go(int page) => Navigation.NavigateTo($"subscriptions?page={page}");
+    private void Go(int page) => Navigation.NavigateTo(Urls.To($"subscriptions?page={page}"));
 
     private async Task LeaveAsync(int id)
     {

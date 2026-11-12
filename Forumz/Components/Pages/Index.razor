@@ -1,5 +1,6 @@
 @page "/"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject ToastService Toasts
 @inject DialogService Dialogs
 @inject TimeProvider Clock
@@ -11,7 +12,7 @@
         <Actions>
             @if (feedsEnabled)
             {
-                <a class="nf-button" href="feed" data-enhance-nav="false">RSS</a>
+                <a class="nf-button" href="@Urls.To("feed")" data-enhance-nav="false">RSS</a>
             }
             @if (model?.CanManage == true)
             {
@@ -73,7 +74,7 @@
                                         <div class="fz-forum-title">
                                             <span class="fz-mark" aria-hidden="true"><Icon Name="chat" /></span>
                                             <div>
-                                                <div class="fz-subject"><a href="@($"forum/{forum.Id}")">@forum.Name</a></div>
+                                                <div class="fz-subject"><a href="@Urls.To($"forum/{forum.Id}")">@forum.Name</a></div>
                                                 @if (forum.Description.Length > 0)
                                                 {
                                                     <div class="fz-sub">@forum.Description</div>
@@ -95,7 +96,7 @@
                                     <td class="fz-latest">
                                         @if (forum.LastPostTime is DateTime whenUtc && forum.LastTopicId is int topicId)
                                         {
-                                            <a href="@($"topic/{topicId}")" title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, relative, Clock)</a>
+                                            <a href="@Urls.To($"topic/{topicId}")" title="@ForumTime.Exact(whenUtc)">@ForumTime.Format(whenUtc, relative, Clock)</a>
                                             <div class="fz-sub">@forum.LastAuthorName</div>
                                         }
                                         else

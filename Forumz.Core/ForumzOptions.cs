@@ -12,6 +12,18 @@ public sealed class ForumzOptions
     /// <summary>Route prefix. The host calls <c>MapForumz()</c> and this is where the circuit is mounted.</summary>
     public string BasePath { get; set; } = "/forums";
 
+    /// <summary>
+    /// The host site's own layout. When set, the forum can be drawn inside that layout and its bar
+    /// becomes the submenu under the host bar. Leave this null and the forum stays its own document.
+    /// </summary>
+    public Type? PublicLayout { get; set; }
+
+    /// <summary>
+    /// Serve the forum's own document and top bar even when <see cref="PublicLayout"/> is set.
+    /// A host that decides per request, such as one tenant at a time, replaces <c>IForumPresentation</c> instead.
+    /// </summary>
+    public bool UseOwnTopBar { get; set; }
+
     /// <summary>Browser title and the name in the shell when the host has not set a brand.</summary>
     public string Title { get; set; } = "Forums";
 

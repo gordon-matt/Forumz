@@ -1,5 +1,6 @@
 @page "/forum/{ForumId:int}"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject NavigationManager Navigation
 @inject ToastService Toasts
 
@@ -17,7 +18,7 @@
     else if (model is not null)
     {
         <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
-            <a href="./">Forums</a>
+            <a href="@Urls.Home">Forums</a>
             <span aria-hidden="true">/</span>
             <span>@model.GroupName</span>
             <span aria-hidden="true">/</span>
@@ -31,11 +32,11 @@
                 }
                 @if (feedsEnabled)
                 {
-                    <a class="nf-button" href="@($"forum/{model.Id}/feed")" data-enhance-nav="false">RSS</a>
+                    <a class="nf-button" href="@Urls.To($"forum/{model.Id}/feed")" data-enhance-nav="false">RSS</a>
                 }
                 @if (model.CanStartTopic)
                 {
-                    <a class="nf-button nf-button-primary" href="@($"forum/{model.Id}/new")">New topic</a>
+                    <a class="nf-button nf-button-primary" href="@Urls.To($"forum/{model.Id}/new")">New topic</a>
                 }
             </Actions>
         </ForumHeading>
@@ -88,7 +89,7 @@
         sizes = [model.PageSize];
     }
 
-    private void Go(int page) => Navigation.NavigateTo($"forum/{ForumId}?page={page}");
+    private void Go(int page) => Navigation.NavigateTo(Urls.To($"forum/{ForumId}?page={page}"));
 
     private async Task ToggleSubscriptionAsync()
     {

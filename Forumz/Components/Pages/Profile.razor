@@ -1,8 +1,11 @@
 @page "/profile"
+@using Microsoft.JSInterop
 @inject IForumService Forums
 @inject IProfileProvider Profiles
 @inject IUserContextService Users
 @inject IOptions<ForumzOptions> Options
+@inject ForumUrls Urls
+@inject IJSRuntime Js
 @inject ToastService Toasts
 
 <PageTitle>Profile</PageTitle>
@@ -33,7 +36,7 @@
                     }
                 </span>
                 <div>
-                    <InputFile OnChange="UploadPhotoAsync" accept="image/jpeg,image/png,image/gif,image/webp" />
+                    <InputFile @ref="photoInput" OnChange="UploadPhotoAsync" accept="image/jpeg,image/png,image/gif,image/webp" />
                     <span class="nf-hint">JPEG, PNG, GIF, or WebP. Up to 2 MB.</span>
                     @if (!string.IsNullOrEmpty(photoUri))
                     {
@@ -59,6 +62,7 @@
 
 @code {
     private readonly ProfileForm form = new();
+    private InputFile? photoInput;
     private string? error;
     private bool loading = true;
     private bool saving;
@@ -89,31 +93,32 @@
 
     private async Task UploadPhotoAsync(InputFileChangeEventArgs args)
     {
-        string? userId = Users.GetCurrentUserId();
-        if (string.IsNullOrWhiteSpace(userId))
+        // Do not open the browser file stream. On a host circuit its chunks never arrive, and the
+        // framework then reports that wait as an unhandled circuit error.
+        if (photoInput?.Element is not { } element || args.File is null)
         {
             return;
         }
 
         try
         {
-            await using var stream = args.File.OpenReadStream(2 * 1024 * 1024);
-            var result = await Profiles.SaveAsync(userId, stream, args.File.ContentType);
-            if (!result.IsSuccess)
+            await using var module = await Js.InvokeAsync<IJSObjectReference>("import", Urls.Asset("forumz-upload.js"));
+            var outcome = await module.InvokeAsync<PhotoUploadOutcome>("upload", element, Urls.To("profile-photo"));
+            if (!outcome.Ok)
             {
-                Toasts.ShowFailure(result);
+                Toasts.Error(string.IsNullOrWhiteSpace(outcome.Message)
+                    ? "The photo could not be uploaded. Try a smaller image."
+                    : outcome.Message);
                 return;
             }
 
-            photoUri = result.Value.PhotoUri;
+            photoUri = outcome.PhotoUri;
+            Toasts.Success("Photo saved.");
         }
-        catch (IOException)
+        catch (JSException)
         {
-            Toasts.Error("Keep the photo under 2 MB.");
-            return;
+            Toasts.Error("The photo could not be uploaded. Try a smaller image.");
         }
-
-        Toasts.Success("Photo saved.");
     }
 
     private async Task RemovePhotoAsync()
@@ -152,6 +157,15 @@
         }
 
         Toasts.Success("Profile saved.");
+    }
+
+    private sealed class PhotoUploadOutcome
+    {
+        public bool Ok { get; set; }
+
+        public string Message { get; set; } = string.Empty;
+
+        public string PhotoUri { get; set; } = string.Empty;
     }
 
     private sealed class ProfileForm

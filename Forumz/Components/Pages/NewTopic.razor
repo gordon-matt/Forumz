@@ -1,5 +1,6 @@
 @page "/forum/{ForumId:int}/new"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject IForumAccess Access
 @inject NavigationManager Navigation
 @inject ForumClientContext Client
@@ -9,9 +10,9 @@
 
 <div class="fz-page">
     <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
-        <a href="./">Forums</a>
+        <a href="@Urls.Home">Forums</a>
         <span aria-hidden="true">/</span>
-        <a href="@($"forum/{ForumId}")">Forum</a>
+        <a href="@Urls.To($"forum/{ForumId}")">Forum</a>
         <span aria-hidden="true">/</span>
         <span aria-current="page">New topic</span>
     </nav>
@@ -32,7 +33,7 @@
         }
         <PostComposer @bind-Text="form.Text" @bind-Format="form.Format" Label="Post" />
         <div class="nf-form-actions">
-            <a class="nf-button" href="@($"forum/{ForumId}")">Cancel</a>
+            <a class="nf-button" href="@Urls.To($"forum/{ForumId}")">Cancel</a>
             <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post topic</button>
         </div>
     </EditForm>
@@ -62,7 +63,7 @@
         }
 
         Toasts.Success("Topic posted.");
-        Navigation.NavigateTo($"topic/{result.Value}");
+        Navigation.NavigateTo(Urls.To($"topic/{result.Value}"));
     }
 
     private sealed class TopicForm

@@ -270,6 +270,45 @@
 .fz-group h2 { margin: 0; font-size: 1.05rem; }
 .fz-group .fz-actions h2 { margin-right: auto; }
 
+.fz-subnav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 1rem;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--nf-border);
+}
+
+.fz-subnav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.fz-subnav a {
+    padding: 0.35rem 0.7rem;
+    border-radius: var(--nf-radius);
+    color: var(--nf-muted);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.fz-subnav a.active {
+    color: var(--nf-text);
+    background: var(--nf-surface-2);
+}
+
+.fz-subnav-search { margin-left: auto; }
+
+.fz-subnav-input {
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--nf-border);
+    border-radius: var(--nf-radius);
+    background: var(--nf-surface);
+    color: inherit;
+}
+
 @media (max-width: 720px) {
     .fz-board thead { display: none; }
 

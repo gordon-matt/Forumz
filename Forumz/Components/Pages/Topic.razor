@@ -1,5 +1,6 @@
 @page "/topic/{TopicId:int}"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject NavigationManager Navigation
 @inject ForumClientContext Client
 @inject ToastService Toasts
@@ -22,11 +23,11 @@
     else if (model is not null)
     {
         <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
-            <a href="./">Forums</a>
+            <a href="@Urls.Home">Forums</a>
             <span aria-hidden="true">/</span>
             <span>@model.GroupName</span>
             <span aria-hidden="true">/</span>
-            <a href="@($"forum/{model.ForumId}")">@model.ForumName</a>
+            <a href="@Urls.To($"forum/{model.ForumId}")">@model.ForumName</a>
             <span aria-hidden="true">/</span>
             <span aria-current="page">@model.Subject</span>
         </nav>
@@ -219,7 +220,7 @@
         return found;
     }
 
-    private void Go(int page) => Navigation.NavigateTo($"topic/{TopicId}?page={page}");
+    private void Go(int page) => Navigation.NavigateTo(Urls.To($"topic/{TopicId}?page={page}"));
 
     private async Task ReplyAsync()
     {
@@ -292,7 +293,7 @@
         var stillThere = await Forums.GetTopicAsync(TopicId, 1, countView: false);
         if (!stillThere.IsSuccess)
         {
-            Navigation.NavigateTo(model is null ? "./" : $"forum/{model.ForumId}");
+            Navigation.NavigateTo(model is null ? Urls.Home : Urls.To($"forum/{model.ForumId}"));
             return;
         }
 
@@ -321,7 +322,7 @@
         }
 
         Toasts.Success("Topic deleted.");
-        Navigation.NavigateTo($"forum/{forumId}");
+        Navigation.NavigateTo(Urls.To($"forum/{forumId}"));
     }
 
     private async Task ToggleSubscriptionAsync()

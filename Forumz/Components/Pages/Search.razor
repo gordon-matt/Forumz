@@ -1,5 +1,6 @@
 @page "/search"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject NavigationManager Navigation
 
 <PageTitle>Search</PageTitle>
@@ -80,9 +81,9 @@
         sizes = [model.PageSize];
     }
 
-    private void Run() => Navigation.NavigateTo($"search?q={Uri.EscapeDataString(form.Keywords)}");
+    private void Run() => Navigation.NavigateTo(Urls.To($"search?q={Uri.EscapeDataString(form.Keywords)}"));
 
-    private void Go(int page) => Navigation.NavigateTo($"search?q={Uri.EscapeDataString(form.Keywords)}&page={page}");
+    private void Go(int page) => Navigation.NavigateTo(Urls.To($"search?q={Uri.EscapeDataString(form.Keywords)}&page={page}"));
 
     private sealed class SearchForm
     {

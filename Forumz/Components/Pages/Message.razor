@@ -1,5 +1,6 @@
 @page "/messages/new"
 @inject IForumService Forums
+@inject ForumUrls Urls
 @inject NavigationManager Navigation
 @inject ToastService Toasts
 
@@ -7,7 +8,7 @@
 
 <div class="fz-page">
     <nav class="nf-breadcrumbs" aria-label="Breadcrumb">
-        <a href="messages">Messages</a>
+        <a href="@Urls.To("messages")">Messages</a>
         <span aria-hidden="true">/</span>
         <span aria-current="page">New</span>
     </nav>
@@ -23,7 +24,7 @@
             <InputTextArea id="pm-text" class="nf-textarea" rows="8" @bind-Value="form.Text" />
         </Field>
         <div class="nf-form-actions">
-            <a class="nf-button" href="messages">Cancel</a>
+            <a class="nf-button" href="@Urls.To("messages")">Cancel</a>
             <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Send</button>
         </div>
     </EditForm>
@@ -61,7 +62,7 @@
         }
 
         Toasts.Success("Message sent.");
-        Navigation.NavigateTo($"messages/{result.Value}");
+        Navigation.NavigateTo(Urls.To($"messages/{result.Value}"));
     }
 
     private sealed class ComposeForm

@@ -1,0 +1,39 @@
+@inject ForumUrls Urls
+@inject IUserContextService Users
+@inject NavigationManager Navigation
+
+<nav class="fz-subnav" aria-label="Forums">
+    <div class="fz-subnav-links">
+        <NavLink href="@Urls.Home" Match="NavLinkMatch.All">Forums</NavLink>
+        <NavLink href="@Urls.To("active")">Active</NavLink>
+        <NavLink href="@Urls.To("search")">Search</NavLink>
+        @if (signedIn)
+        {
+            <NavLink href="@Urls.To("subscriptions")">Subscriptions</NavLink>
+            <NavLink href="@Urls.To("messages")">Messages</NavLink>
+            <NavLink href="@Urls.To("profile")">@account</NavLink>
+        }
+    </div>
+    <form class="fz-subnav-search" @onsubmit="Search" @onsubmit:preventDefault>
+        <input class="fz-subnav-input" @bind="term" @bind:event="oninput" placeholder="Search topics" aria-label="Search topics" />
+    </form>
+</nav>
+
+@code {
+    private bool signedIn;
+    private string account = "Profile";
+    private string term = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        signedIn = Users.IsAuthenticated();
+        string? name = Users.GetCurrentUserName();
+        account = string.IsNullOrWhiteSpace(name) ? "Profile" : name;
+    }
+
+    private void Search()
+    {
+        string query = term.Trim();
+        Navigation.NavigateTo(query.Length == 0 ? Urls.To("search") : Urls.To($"search?q={Uri.EscapeDataString(query)}"));
+    }
+}

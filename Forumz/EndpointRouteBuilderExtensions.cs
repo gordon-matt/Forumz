@@ -1,3 +1,5 @@
+using Heroicsoft.NetForge.Abstractions.Auth;
+using Heroicsoft.NetForge.Results;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.StaticFiles;
@@ -13,6 +15,8 @@ public static class EndpointRouteBuilderExtensions
         /// Mounts the forum at <see cref="ForumzOptions.BasePath"/>. Reading is anonymous by default.
         /// Require authorization on the returned group only when the whole forum is private:
         /// <c>app.MapForumz().RequireAuthorization()</c>.
+        /// The forum document is always mapped. <see cref="IForumPresentation"/> leaves a request on the
+        /// host's router when the host layout should draw it, and serves the document when the forum keeps its own top bar.
         /// </summary>
         /// <returns>The route group, including the circuit and the feeds.</returns>
         public RouteGroupBuilder MapForumz()
@@ -21,14 +25,18 @@ public static class EndpointRouteBuilderExtensions
             var group = endpoints.MapGroup(options.BasePath);
 
             group.MapGet("_assets/{name}", EmbeddedAssets.Serve).ExcludeFromDescription();
-            group.MapGet("_framework/blazor.web.js", ServeBlazorScript).ExcludeFromDescription();
-            // The document base href is the mount path. Blazor resolves a "./_content/..."
-            // import against that base, so the same static assets must also answer there.
-            group.MapGet("_content/{**path}", ServeContent).ExcludeFromDescription();
+            // The browser file stream's chunks never arrive on a host circuit, and the framework
+            // then treats the wait as a fatal circuit error. A form post does not use that stream.
+            group.MapPost("profile-photo", UploadPhotoAsync).DisableAntiforgery().ExcludeFromDescription();
             group.MapGet("feed", (IForumService forums, HttpContext context, CancellationToken cancellationToken) =>
                 FeedAsync(forums, context, null, cancellationToken));
             group.MapGet("forum/{forumId:int}/feed", (int forumId, IForumService forums, HttpContext context, CancellationToken cancellationToken) =>
                 FeedAsync(forums, context, forumId, cancellationToken));
+
+            group.MapGet("_framework/blazor.web.js", ServeBlazorScript).ExcludeFromDescription();
+            // The document base href is the mount path. Blazor resolves a "./_content/..."
+            // import against that base, so the same static assets must also answer there.
+            group.MapGet("_content/{**path}", ServeContent).ExcludeFromDescription();
 
             group.MapRazorComponents<Components.ForumzApp>()
                 .AddInteractiveServerRenderMode()
@@ -36,6 +44,48 @@ public static class EndpointRouteBuilderExtensions
 
             return group;
         }
+    }
+
+    private static async Task<IResult> UploadPhotoAsync(
+        HttpRequest request,
+        IUserContextService users,
+        IProfileProvider profiles,
+        CancellationToken cancellationToken)
+    {
+        if (!users.IsAuthenticated())
+        {
+            return Results.Unauthorized();
+        }
+
+        string? userId = users.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Results.Unauthorized();
+        }
+
+        if (!request.HasFormContentType)
+        {
+            return Results.BadRequest(new { detail = "Choose an image." });
+        }
+
+        var form = await request.ReadFormAsync(cancellationToken);
+        var file = form.Files.GetFile("photo");
+        if (file is null || file.Length == 0)
+        {
+            return Results.BadRequest(new { detail = "Choose an image." });
+        }
+
+        await using var content = file.OpenReadStream();
+        var saved = await profiles.SaveAsync(userId, content, file.ContentType, cancellationToken);
+        if (saved.IsSuccess)
+        {
+            return Results.Ok(new { photoUri = saved.Value.PhotoUri });
+        }
+
+        string detail = saved.GetDisplayMessage();
+        return saved.Status == Ardalis.Result.ResultStatus.Forbidden
+            ? Results.Json(new { detail }, statusCode: StatusCodes.Status403Forbidden)
+            : Results.BadRequest(new { detail });
     }
 
     private static async Task<IResult> FeedAsync(IForumService forums, HttpContext context, int? forumId, CancellationToken cancellationToken)
