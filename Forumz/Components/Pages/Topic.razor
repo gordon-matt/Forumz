@@ -5,6 +5,8 @@
 @inject ToastService Toasts
 @inject DialogService Dialogs
 @inject TimeProvider Clock
+@inject IProfileProvider Profiles
+@inject IOptions<ForumzOptions> Options
 
 <PageTitle>@(model?.Subject ?? "Topic")</PageTitle>
 
@@ -50,7 +52,16 @@
         {
             <article class="fz-post">
                 <header class="fz-post-user">
-                    <span class="fz-avatar" aria-hidden="true">@ForumInitials.From(post.AuthorName)</span>
+                    <span class="fz-avatar" aria-hidden="true">
+                        @if (photos.TryGetValue(post.AuthorUserId, out var photo))
+                        {
+                            <img src="@photo" alt="" />
+                        }
+                        else
+                        {
+                            @ForumInitials.From(post.AuthorName)
+                        }
+                    </span>
                     <div>
                         <span class="fz-user-name">@post.AuthorName</span>
                         <div class="fz-sub">@post.AuthorPostCount posts</div>
@@ -156,6 +167,7 @@
     private ContentFormat editFormat = ContentFormat.Markdown;
     private int destinationForumId;
     private IReadOnlyList<ForumChoiceModel> choices = [];
+    private IReadOnlyDictionary<string, string> photos = new Dictionary<string, string>();
 
     protected override async Task OnParametersSetAsync() => await LoadAsync(false);
 
@@ -184,6 +196,27 @@
         error = null;
         model = result.Value;
         sizes = [model.PageSize];
+        photos = await LoadPhotosAsync(model.Posts.Select(post => post.AuthorUserId));
+    }
+
+    private async Task<IReadOnlyDictionary<string, string>> LoadPhotosAsync(IEnumerable<string> userIds)
+    {
+        var found = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (!Options.Value.ProfilePhotosEnabled)
+        {
+            return found;
+        }
+
+        foreach (string userId in userIds.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal))
+        {
+            string uri = (await Profiles.GetAsync(userId)).PhotoUri;
+            if (!string.IsNullOrWhiteSpace(uri))
+            {
+                found[userId] = uri;
+            }
+        }
+
+        return found;
     }
 
     private void Go(int page) => Navigation.NavigateTo($"topic/{TopicId}?page={page}");

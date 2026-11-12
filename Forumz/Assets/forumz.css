@@ -183,12 +183,30 @@
     width: 3.25rem;
     height: 3.25rem;
     margin-bottom: 0.65rem;
+    overflow: hidden;
     border-radius: 999px;
     background: var(--nf-accent-soft);
     color: var(--nf-accent);
     font-weight: 700;
     letter-spacing: 0.02em;
 }
+
+.fz-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fz-profile-photo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.fz-profile-photo .fz-avatar { margin-bottom: 0; }
+
+.fz-profile-photo .nf-hint { display: block; margin: 0.35rem 0; }
 
 .fz-user-name {
     display: block;

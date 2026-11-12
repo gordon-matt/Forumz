@@ -95,4 +95,16 @@ public sealed class ForumzOptions
 
     /// <summary>The editor a new post opens in when both are available.</summary>
     public ContentFormat DefaultContentFormat { get; set; } = ContentFormat.Markdown;
+
+    /// <summary>
+    /// When false, posts show initials and the profile page has no photo control.
+    /// When true, the registered <c>IProfileProvider</c> supplies the photo. The built-in provider stores it under <see cref="ProfilePhotoPath"/>.
+    /// </summary>
+    public bool ProfilePhotosEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Folder under wwwroot used by the built-in profile provider.
+    /// Nested folders such as <c>media/avatars</c> are allowed. A path that leaves wwwroot is rejected.
+    /// </summary>
+    public string ProfilePhotoPath { get; set; } = "forumz/avatars";
 }

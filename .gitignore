@@ -288,5 +288,6 @@ TestResults/
 NuGet-Push.ps1
 # Demo uploads and database
 Forumz.Sample/wwwroot/media/
+Forumz.Sample/wwwroot/forumz/
 Forumz.Sample/*.db*
 

@@ -13,8 +13,9 @@ public static class ServiceCollectionExtensions
         /// <summary>
         /// Registers the forum services and applies migrations at startup. Pair it with
         /// <c>AddForumzSqlite</c>, <c>AddForumzSqlServer</c>, <c>AddForumzNpgsql</c> or <c>AddForumzMySql</c>.
-        /// A host that already registered <see cref="IUserContextService"/>, <see cref="IForumAccess"/>
-        /// or <see cref="IForumTenantScope"/> keeps its own.
+        /// A host that already registered <see cref="IUserContextService"/>, <see cref="IForumAccess"/>,
+        /// <see cref="IForumTenantScope"/>, or <see cref="IProfileProvider"/> keeps its own.
+        /// Register <see cref="IProfileProvider"/> after this method to replace <see cref="DefaultProfileProvider"/>.
         /// </summary>
         /// <param name="configure">Mount path, title, and the settings used until an administrator saves their own.</param>
         /// <returns>The same collection.</returns>
@@ -32,6 +33,7 @@ public static class ServiceCollectionExtensions
             services.TryAddScoped<IForumAccess, DefaultForumAccess>();
             services.TryAddScoped<IForumNotifier, LoggingForumNotifier>();
             services.TryAddScoped<IForumContentRenderer, ForumContentRenderer>();
+            services.TryAddScoped<IProfileProvider, DefaultProfileProvider>();
 
             services.TryAddScoped(Repository<ForumGroup>);
             services.TryAddScoped(Repository<Forum>);

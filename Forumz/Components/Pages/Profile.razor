@@ -1,5 +1,8 @@
 @page "/profile"
 @inject IForumService Forums
+@inject IProfileProvider Profiles
+@inject IUserContextService Users
+@inject IOptions<ForumzOptions> Options
 @inject ToastService Toasts
 
 <PageTitle>Profile</PageTitle>
@@ -16,6 +19,29 @@
     else
     {
         <ForumHeading Title="Your profile" Description="@($"{posts} posts")" />
+        @if (photosEnabled)
+        {
+            <div class="fz-profile-photo">
+                <span class="fz-avatar" aria-hidden="true">
+                    @if (!string.IsNullOrEmpty(photoUri))
+                    {
+                        <img src="@photoUri" alt="" />
+                    }
+                    else
+                    {
+                        @ForumInitials.From(form.DisplayName)
+                    }
+                </span>
+                <div>
+                    <InputFile OnChange="UploadPhotoAsync" accept="image/jpeg,image/png,image/gif,image/webp" />
+                    <span class="nf-hint">JPEG, PNG, GIF, or WebP. Up to 2 MB.</span>
+                    @if (!string.IsNullOrEmpty(photoUri))
+                    {
+                        <button type="button" class="nf-button" @onclick="RemovePhotoAsync">Remove photo</button>
+                    }
+                </div>
+            </div>
+        }
         <EditForm Model="form" OnValidSubmit="SaveAsync">
             <Field Label="Display name" For="profile-name">
                 <InputText id="profile-name" class="nf-input" @bind-Value="form.DisplayName" />
@@ -37,6 +63,8 @@
     private bool loading = true;
     private bool saving;
     private int posts;
+    private bool photosEnabled;
+    private string photoUri = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,6 +79,60 @@
         form.DisplayName = result.Value.DisplayName;
         form.Signature = result.Value.Signature;
         posts = result.Value.PostCount;
+        photosEnabled = Options.Value.ProfilePhotosEnabled;
+        if (photosEnabled)
+        {
+            string? userId = Users.GetCurrentUserId();
+            photoUri = string.IsNullOrWhiteSpace(userId) ? string.Empty : (await Profiles.GetAsync(userId)).PhotoUri;
+        }
+    }
+
+    private async Task UploadPhotoAsync(InputFileChangeEventArgs args)
+    {
+        string? userId = Users.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return;
+        }
+
+        try
+        {
+            await using var stream = args.File.OpenReadStream(2 * 1024 * 1024);
+            var result = await Profiles.SaveAsync(userId, stream, args.File.ContentType);
+            if (!result.IsSuccess)
+            {
+                Toasts.ShowFailure(result);
+                return;
+            }
+
+            photoUri = result.Value.PhotoUri;
+        }
+        catch (IOException)
+        {
+            Toasts.Error("Keep the photo under 2 MB.");
+            return;
+        }
+
+        Toasts.Success("Photo saved.");
+    }
+
+    private async Task RemovePhotoAsync()
+    {
+        string? userId = Users.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return;
+        }
+
+        var result = await Profiles.RemoveAsync(userId);
+        if (!result.IsSuccess)
+        {
+            Toasts.ShowFailure(result);
+            return;
+        }
+
+        photoUri = string.Empty;
+        Toasts.Success("Photo removed.");
     }
 
     private async Task SaveAsync()
