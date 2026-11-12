@@ -41,6 +41,16 @@
     background: var(--nf-surface);
 }
 
+.fz-board-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-right: 0.65rem;
+    border-bottom: 1px solid var(--nf-border);
+    background: var(--nf-surface-2);
+}
+
 .fz-board-title {
     margin: 0;
     padding: 0.7rem 1rem;
@@ -51,6 +61,13 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
+
+.fz-board-head .fz-board-title {
+    border-bottom: 0;
+    background: transparent;
+}
+
+.fz-row-actions { margin-left: auto; flex: 0 0 auto; }
 
 .fz-board table {
     width: 100%;
@@ -103,7 +120,7 @@
 
 .fz-forum-title {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.85rem;
     min-width: 0;
 }

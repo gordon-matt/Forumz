@@ -25,20 +25,17 @@ public sealed partial class ForumService(
 
     private ContextOptions Token(CancellationToken cancellationToken) => ContextOptions.ForCancellationToken(cancellationToken);
 
-    private Result RequireReader() =>
-        access.CanRead()
-            ? Result.Success()
-            : Result.Forbidden("You do not have permission to read the forums.");
+    private Result RequireReader() => access.CanRead()
+        ? Result.Success()
+        : Result.Forbidden("You do not have permission to read the forums.");
 
-    private Result RequireManager() =>
-        access.CanManage()
-            ? Result.Success()
-            : Result.Forbidden("You do not have permission to manage the forums.");
+    private Result RequireManager() => access.CanManage()
+        ? Result.Success()
+        : Result.Forbidden("You do not have permission to manage the forums.");
 
-    private Result RequireModerator() =>
-        access.CanModerate()
-            ? Result.Success()
-            : Result.Forbidden("You do not have permission to moderate.");
+    private Result RequireModerator() => access.CanModerate()
+        ? Result.Success()
+        : Result.Forbidden("You do not have permission to moderate.");
 
     private Result<string> RequireWriter()
     {

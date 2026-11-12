@@ -29,7 +29,10 @@
                 {
                     <button type="button" class="nf-button" @onclick="ToggleSubscriptionAsync">@(model.IsSubscribed ? "Unsubscribe" : "Subscribe")</button>
                 }
-                <a class="nf-button" href="@($"forum/{model.Id}/feed")">RSS</a>
+                @if (feedsEnabled)
+                {
+                    <a class="nf-button" href="@($"forum/{model.Id}/feed")" data-enhance-nav="false">RSS</a>
+                }
                 @if (model.CanStartTopic)
                 {
                     <a class="nf-button nf-button-primary" href="@($"forum/{model.Id}/new")">New topic</a>
@@ -52,6 +55,7 @@
     private string? error;
     private bool loading = true;
     private bool relative = true;
+    private bool feedsEnabled = true;
     private int[] sizes = [20];
     private int loadedId;
     private int loadedPage = -1;
@@ -69,6 +73,7 @@
         loading = true;
         var settings = await Forums.GetSettingsAsync();
         relative = !settings.IsSuccess || settings.Value.RelativeDates;
+        feedsEnabled = !settings.IsSuccess || settings.Value.FeedsEnabled;
         var result = await Forums.GetForumAsync(ForumId, page);
         loading = false;
         if (!result.IsSuccess)

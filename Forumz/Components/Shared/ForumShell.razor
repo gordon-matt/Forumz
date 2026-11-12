@@ -1,6 +1,5 @@
 @inject IOptions<ForumzOptions> Options
 @inject IOptions<ForgeShellOptions> Shell
-@inject IForumAccess Access
 @inject IUserContextService Users
 @inject NavigationManager Navigation
 
@@ -10,7 +9,7 @@
           LogoUrl="@ForgeBrand.Logo(Shell.Value)"
           LogoDarkUrl="@ForgeBrand.LogoDark(Shell.Value)"
           MarkUrl="@ForgeBrand.Mark(Shell.Value)"
-          NavigationPlacement="Placement"
+          NavigationPlacement="ForgeNavigationPlacement.Topbar"
           Sections="sections"
           ShowSearch="true"
           SearchPlaceholder="Search topics"
@@ -46,9 +45,6 @@
 
 @code {
     [Parameter]
-    public ForgeNavigationPlacement Placement { get; set; } = ForgeNavigationPlacement.Topbar;
-
-    [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     private IReadOnlyList<ForgeNavSection> sections = [];
@@ -70,11 +66,6 @@
         {
             items.Add(new ForgeNavItem { Title = "Subscriptions", Href = "subscriptions", Icon = "bookmark" });
             items.Add(new ForgeNavItem { Title = "Messages", Href = "messages", Icon = "inbox" });
-        }
-
-        if (Access.CanManage())
-        {
-            items.Add(new ForgeNavItem { Title = "Manage", Href = "manage", Icon = "settings" });
         }
 
         sections = [new ForgeNavSection { Items = items }];

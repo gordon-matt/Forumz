@@ -52,7 +52,8 @@ public static class EndpointRouteBuilderExtensions
         var request = context.Request;
         var options = context.RequestServices.GetRequiredService<IOptions<ForumzOptions>>().Value;
         string baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{options.BasePath}";
-        return Results.Text(RssDocument.Write(result.Value, baseUrl), "application/rss+xml");
+        // text/xml opens in the browser. application/rss+xml is treated as a download.
+        return Results.Text(RssDocument.Write(result.Value, baseUrl), "text/xml; charset=utf-8");
     }
 
     private static IResult ServeContent(string path, IWebHostEnvironment environment)

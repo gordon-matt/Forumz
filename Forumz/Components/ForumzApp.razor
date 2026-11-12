@@ -10,6 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="@($"{Options.Value.BasePath}/")" />
     <title>@Options.Value.Title</title>
+    @if (IconUrl is not null)
+    {
+        <link rel="icon" href="@IconUrl" />
+    }
     <script src="/_content/Heroicsoft.NetForge.Components/js/theme-init.js"
             data-theme-key="@Ui.ThemeStorageKey"
             data-default-theme="@DefaultScheme"
@@ -32,6 +36,8 @@
 
 @code {
     private ForgeUiOptions Ui => UiOptions.Value;
+
+    private string? IconUrl => ForgeBrand.Mark(Shell.Value);
 
     private string StorageKey => ThemeStorage.KeyFor(Ui.ThemeStorageKey, null);
 

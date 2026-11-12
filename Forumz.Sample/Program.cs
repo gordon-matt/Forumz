@@ -44,6 +44,9 @@ builder.Services.Configure<ForgeShellOptions>(shell =>
 {
     shell.Brand = "Forumz";
     shell.BrandHref = "/forums";
+    shell.LogoUrl = "/img/Icon.png";
+    shell.LogoDarkUrl = "/img/Logo.png";
+    shell.MarkUrl = "/img/Icon.png";
 });
 
 string provider = builder.Configuration["Database:Provider"] ?? Constants.DatabaseProviders.Sqlite;

@@ -1,5 +1,7 @@
 @page "/"
 @inject IForumService Forums
+@inject ToastService Toasts
+@inject DialogService Dialogs
 @inject TimeProvider Clock
 
 <PageTitle>Forums</PageTitle>
@@ -7,10 +9,14 @@
 <div class="fz-page">
     <ForumHeading Title="Forums" Description="Groups, forums, and the latest reply in each.">
         <Actions>
-            <a class="nf-button" href="feed">RSS</a>
+            @if (feedsEnabled)
+            {
+                <a class="nf-button" href="feed" data-enhance-nav="false">RSS</a>
+            }
             @if (model?.CanManage == true)
             {
-                <a class="nf-button nf-button-primary" href="manage">Manage</a>
+                <button type="button" class="nf-button" @onclick="EditSettings">Settings</button>
+                <button type="button" class="nf-button nf-button-primary" @onclick="NewGroup">New group</button>
             }
         </Actions>
     </ForumHeading>
@@ -25,14 +31,25 @@
     }
     else if (model!.Groups.Count == 0)
     {
-        <EmptyState Icon="chat" Title="No forums yet" Description="An administrator can add the first group from Manage." />
+        <EmptyState Icon="chat" Title="No forums yet" Description="@(model.CanManage ? "Add a group, then add a forum inside it." : "An administrator can add the first group.")" />
     }
     else
     {
         @foreach (var group in model.Groups)
         {
+            var editable = GroupEdit(group.Id);
             <section class="fz-board">
-                <h2 class="fz-board-title">@group.Name</h2>
+                <div class="fz-board-head">
+                    <h2 class="fz-board-title">@group.Name</h2>
+                    @if (editable is not null)
+                    {
+                        <div class="fz-actions">
+                            <button type="button" class="nf-button nf-button-sm" @onclick="() => EditGroup(editable)">Edit</button>
+                            <button type="button" class="nf-button nf-button-sm" @onclick="() => NewForum(editable)">Add forum</button>
+                            <button type="button" class="nf-button nf-button-sm nf-button-danger" @onclick="() => DeleteGroupAsync(editable)">Delete</button>
+                        </div>
+                    }
+                </div>
                 @if (group.Forums.Count == 0)
                 {
                     <p class="fz-empty">No forums in this group.</p>
@@ -50,6 +67,7 @@
                         <tbody>
                             @foreach (var forum in group.Forums)
                             {
+                                var forumEdit = ForumEdit(forum.Id);
                                 <tr>
                                     <td>
                                         <div class="fz-forum-title">
@@ -61,6 +79,13 @@
                                                     <div class="fz-sub">@forum.Description</div>
                                                 }
                                             </div>
+                                            @if (forumEdit is not null)
+                                            {
+                                                <div class="fz-actions fz-row-actions">
+                                                    <button type="button" class="nf-button nf-button-sm" @onclick="() => EditForum(forumEdit)">Edit</button>
+                                                    <button type="button" class="nf-button nf-button-sm nf-button-danger" @onclick="() => DeleteForumAsync(forumEdit)">Delete</button>
+                                                </div>
+                                            }
                                         </div>
                                     </td>
                                     <td class="fz-count">
@@ -88,24 +113,70 @@
     }
 </div>
 
-@code {
-    private ForumIndexModel? model;
-    private string? error;
-    private bool loading = true;
-    private bool relative = true;
+<Drawer Open="groupOpen" Scrim="true" Title="@(groupForm.Id is null ? "New group" : "Edit group")" Width="min(480px, 100vw)" OnClose="() => groupOpen = false">
+    <ChildContent>
+        <Field Label="Name" For="group-name">
+            <InputText id="group-name" class="nf-input" @bind-Value="groupForm.Name" />
+        </Field>
+        <Field Label="Order" For="group-order">
+            <InputNumber id="group-order" class="nf-input" @bind-Value="groupForm.DisplayOrder" />
+            <span class="nf-hint">Lower numbers are listed first.</span>
+        </Field>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="nf-button" @onclick="() => groupOpen = false">Cancel</button>
+        <button type="button" class="nf-button nf-button-primary" @onclick="SaveGroupAsync">Save</button>
+    </Footer>
+</Drawer>
 
-    protected override async Task OnInitializedAsync()
-    {
-        var settings = await Forums.GetSettingsAsync();
-        relative = !settings.IsSuccess || settings.Value.RelativeDates;
-        var result = await Forums.GetIndexAsync();
-        loading = false;
-        if (!result.IsSuccess)
+<Drawer Open="forumOpen" Scrim="true" Title="@(forumForm.Id is null ? "New forum" : "Edit forum")" Width="min(560px, 100vw)" OnClose="() => forumOpen = false">
+    <ChildContent>
+        <Field Label="Group" For="forum-group">
+            <InputSelect id="forum-group" class="nf-input" @bind-Value="forumForm.GroupId">
+                @if (structure is not null)
+                {
+                    @foreach (var group in structure.Groups)
+                    {
+                        <option value="@group.Id">@group.Name</option>
+                    }
+                }
+            </InputSelect>
+        </Field>
+        <Field Label="Name" For="forum-name">
+            <InputText id="forum-name" class="nf-input" @bind-Value="forumForm.Name" />
+        </Field>
+        <Field Label="Description" For="forum-description">
+            <InputTextArea id="forum-description" class="nf-textarea" rows="4" @bind-Value="forumForm.Description" />
+        </Field>
+        <Field Label="Order" For="forum-order">
+            <InputNumber id="forum-order" class="nf-input" @bind-Value="forumForm.DisplayOrder" />
+        </Field>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="nf-button" @onclick="() => forumOpen = false">Cancel</button>
+        <button type="button" class="nf-button nf-button-primary" @onclick="SaveForumAsync">Save</button>
+    </Footer>
+</Drawer>
+
+<Drawer Open="settingsOpen" Scrim="true" Title="Forum settings" Width="min(560px, 100vw)" OnClose="() => settingsOpen = false">
+    <ChildContent>
+        @if (settings is not null)
         {
-            error = result.GetDisplayMessage();
-            return;
+            <Field Label="Topics per page" For="set-topics"><InputNumber id="set-topics" class="nf-input" @bind-Value="settings.TopicsPageSize" /></Field>
+            <Field Label="Posts per page" For="set-posts"><InputNumber id="set-posts" class="nf-input" @bind-Value="settings.PostsPageSize" /></Field>
+            <Field Label="Subject length" For="set-subject"><InputNumber id="set-subject" class="nf-input" @bind-Value="settings.SubjectMaxLength" /></Field>
+            <Field Label="Post length" For="set-post"><InputNumber id="set-post" class="nf-input" @bind-Value="settings.PostMaxLength" /></Field>
+            <label class="nf-check"><input type="checkbox" @bind="settings.AllowUsersToEditPosts" /> Members can edit their posts</label>
+            <label class="nf-check"><input type="checkbox" @bind="settings.AllowUsersToDeletePosts" /> Members can delete their posts</label>
+            <label class="nf-check"><input type="checkbox" @bind="settings.AllowUsersToManageSubscriptions" /> Members can subscribe</label>
+            <label class="nf-check"><input type="checkbox" @bind="settings.AllowPrivateMessages" /> Private messages</label>
+            <label class="nf-check"><input type="checkbox" @bind="settings.SignaturesEnabled" /> Signatures</label>
+            <label class="nf-check"><input type="checkbox" @bind="settings.RelativeDates" /> Relative dates</label>
+            <label class="nf-check"><input type="checkbox" @bind="settings.FeedsEnabled" /> RSS feeds</label>
         }
-
-        model = result.Value;
-    }
-}
+    </ChildContent>
+    <Footer>
+        <button type="button" class="nf-button" @onclick="() => settingsOpen = false">Cancel</button>
+        <button type="button" class="nf-button nf-button-primary" @onclick="SaveSettingsAsync">Save</button>
+    </Footer>
+</Drawer>
