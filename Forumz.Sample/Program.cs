@@ -6,6 +6,7 @@ using Forumz.Data.Sql;
 using Forumz.Data.Sqlite;
 using Forumz.Sample;
 using Heroicsoft.NetForge.Abstractions.Auth;
+using Heroicsoft.NetForge.Components;
 using Heroicsoft.NetForge.Components.Layout;
 using Heroicsoft.NetForge.Components.Theming;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -48,6 +49,8 @@ builder.Services.Configure<ForgeShellOptions>(shell =>
     shell.LogoDarkUrl = "/img/Logo.png";
     shell.MarkUrl = "/img/Icon.png";
 });
+
+builder.Services.ConfigureNetForgeToastSounds(sounds => sounds.EnableSounds = true);
 
 string provider = builder.Configuration["Database:Provider"] ?? Constants.DatabaseProviders.Sqlite;
 string? connectionString = builder.Configuration.GetConnectionString("Forumz");
