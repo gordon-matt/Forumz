@@ -39,6 +39,12 @@ public sealed class ForumzOptions
     /// </summary>
     public string LogoutPath { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Extra Razor component at the end of the forum top bar, before the account link.
+    /// The sample sets this to its user switcher. Null shows nothing. The component is created with no parameters.
+    /// </summary>
+    public Type? TopbarComponent { get; set; }
+
     /// <summary>Shared-menu name when the host draws <c>UseSharedMenu</c> inside the forum shell.</summary>
     public string MenuName { get; set; } = "Forumz";
 

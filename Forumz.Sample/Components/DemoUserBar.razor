@@ -1,0 +1,61 @@
+@namespace Forumz.Sample
+@using Heroicsoft.NetForge.Abstractions.Auth
+@using Microsoft.AspNetCore.Components.Routing
+@implements IDisposable
+@inject IUserContextService Users
+@inject NavigationManager Navigation
+
+<div class="fz-demo-users" role="group" aria-label="Demo users" style="display:inline-flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+    <span class="nf-muted" style="font-size:0.85rem;white-space:nowrap;">Sign in as</span>
+    @foreach (var user in DemoUsers.All)
+    {
+        bool current = string.Equals(user.Id, currentId, StringComparison.OrdinalIgnoreCase);
+        <form method="post" action="/account/sign-in" data-enhance="false" style="display:inline-flex;margin:0;">
+            <input type="hidden" name="userId" value="@user.Id" />
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+            <button type="submit"
+                    class="@($"nf-button{(current ? " nf-button-primary" : string.Empty)}")"
+                    disabled="@current"
+                    title="@(current ? "Signed in" : user.IsAdministrator ? "Administrator" : "Member")">
+                @user.DisplayName
+            </button>
+        </form>
+    }
+    @if (currentId is not null)
+    {
+        <form method="post" action="/account/sign-out" data-enhance="false" style="display:inline-flex;margin:0;">
+            <button type="submit" class="nf-button" title="Browse without an account">Sign out</button>
+        </form>
+    }
+</div>
+
+@code {
+    private string? currentId;
+    private string returnUrl = "/forums";
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        currentId = Users.IsAuthenticated() ? Users.GetCurrentUserId() : null;
+        returnUrl = LocalPath(Navigation.Uri);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        returnUrl = LocalPath(e.Location);
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+
+    private static string LocalPath(string uri)
+    {
+        if (!Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out var parsed))
+        {
+            return "/forums";
+        }
+
+        string path = parsed.IsAbsoluteUri ? parsed.PathAndQuery : uri;
+        return path.StartsWith('/') && !path.StartsWith("//", StringComparison.Ordinal) ? path : "/forums";
+    }
+}

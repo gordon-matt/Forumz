@@ -21,6 +21,10 @@
           ShowUserMenu="false"
           ShowVersion="false">
     <TopbarEnd>
+        @if (Options.Value.TopbarComponent is { } topbar)
+        {
+            <DynamicComponent Type="topbar" />
+        }
         @if (!string.IsNullOrWhiteSpace(account))
         {
             <a class="nf-button" href="profile">@account</a>

@@ -44,7 +44,7 @@ Replace `IForumNotifier` to email subscribers. The default only logs.
 
 ## Sample
 
-`Forumz.Sample` is signed in as Dev User and seeds a welcome forum on an empty database.
+`Forumz.Sample` seeds a welcome forum on an empty database. It opens signed in as Dev User, an administrator. The top bar switches to Blair Chen or Casey Nguyen, who are members, so a private message can be sent from one to the other.
 
 ```bash
 dotnet run --project Forumz.Sample

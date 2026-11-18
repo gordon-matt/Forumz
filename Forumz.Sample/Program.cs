@@ -5,18 +5,16 @@ using Forumz.Data.Npgsql;
 using Forumz.Data.Sql;
 using Forumz.Data.Sqlite;
 using Forumz.Sample;
-using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Components;
 using Heroicsoft.NetForge.Components.Layout;
 using Heroicsoft.NetForge.Components.Theming;
-using Microsoft.AspNetCore.Components.Authorization;
 using Pickstack;
 using Pickstack.FileManager.WebFilez;
 using Pickstack.RichTextEditor.TinyMce8;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<IUserContextService, SampleUserContext>();
+builder.Services.AddDemoUsers();
 
 // The file browser is an MVC page in the picker's frame, and it connects to a Blazor
 // circuit at /_blazor. This sample's only other circuit is the forum under /forums,
@@ -29,9 +27,11 @@ builder.Services.AddPickstack(builder.Configuration)
         .WithHeight(280)
         .WithToolbar("undo redo | bold italic underline | bullist numlist blockquote | link image | code"));
 
-builder.Services.AddForumz(options => builder.Configuration.GetSection(ForumzOptions.SectionName).Bind(options));
-builder.Services.AddScoped<AuthenticationStateProvider, SampleAuthState>();
-builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddForumz(options =>
+{
+    builder.Configuration.GetSection(ForumzOptions.SectionName).Bind(options);
+    options.TopbarComponent = typeof(DemoUserBar);
+});
 
 builder.Services.Configure<ForgeUiOptions>(ui =>
 {
@@ -84,9 +84,13 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 app.MapStaticAssets();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseDemoSignIn();
 app.UseAntiforgery();
 app.UsePickstack();
 app.MapControllers();
+app.MapDemoAuth();
 app.MapGet("/", () => Results.Redirect("/forums"));
 app.MapForumz();
 app.Run();
