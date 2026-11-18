@@ -26,7 +26,7 @@ Browse to `/forums`.
 
 Reading is anonymous. Posting needs a signed-in user. The default rules let anyone read, a signed-in user post, and an administrator (`Administrator` role) create forums and moderate. Replace `IForumAccess` to use the host's own permissions.
 
-A multi-tenant host replaces `IForumTenantScope` and returns the current tenant on every call, including inside the Blazor circuit. Null means one shared forum.
+A multi-tenant host replaces `IForumTenantScope` and returns the current tenant on every call, including inside the Blazor circuit and on the chat hub. Null means one shared forum. Direct messages use that same tenant, so a single-tenant host does not configure chat tenancy separately.
 
 Replace `IForumNotifier` to email subscribers. The default only logs.
 
@@ -38,7 +38,7 @@ Replace `IForumNotifier` to email subscribers. The default only logs.
 - Edit or delete your own posts, when settings allow it. Moderators can edit any post, move a topic, and remove it.
 - Search subjects and posts, and follow the newest replies.
 - Subscribe to a forum or a topic.
-- Send a direct message from Messages. Rooms are off. The other person needs a forum profile, which they get by posting or saving their own.
+- Send a direct message from a post. The first time, the other person is asked to connect. After they accept, you can chat and see when they are online. Rooms are off.
 - RSS at `/forums/feed` and `/forums/forum/{id}/feed`.
 - Manage groups, forums, and settings from `/forums/manage`.
 
@@ -52,4 +52,4 @@ dotnet run --project Forumz.Sample
 
 ## Inferno
 
-The Inferno plugin `Inferno.Plugins.Messaging.Forumz` references this library, stores the tables in the CMS database, and scopes them to the current tenant. Posting requires the Forums permission. Moderating requires Moderate forums.
+The Inferno plugin `Inferno.Plugins.Messaging.Forumz` references this library, stores the tables in the CMS database, and scopes forums and direct messages to the current Flatmate tenant. Posting requires the Forums permission. Moderating requires Moderate forums.

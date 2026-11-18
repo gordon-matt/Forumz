@@ -4,5 +4,10 @@
 <PageTitle>Messages</PageTitle>
 
 <div class="fz-chat">
-    <Chat Theme="netforge" Height="100%" />
+    <Chat Theme="netforge" Height="100%" WithUserId="@WithUser" ConnectOnOpen="@(!string.IsNullOrWhiteSpace(WithUser))" />
 </div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "withUser")]
+    public string? WithUser { get; set; }
+}

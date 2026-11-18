@@ -1,4 +1,5 @@
 @page "/topic/{TopicId:int}"
+@using Forumz.Services.Content
 @inject IForumService Forums
 @inject ForumUrls Urls
 @inject NavigationManager Navigation
@@ -8,6 +9,8 @@
 @inject TimeProvider Clock
 @inject IProfileProvider Profiles
 @inject IOptions<ForumzOptions> Options
+@inject IUserContextService Users
+@inject IForumContentRenderer Content
 
 <PageTitle>@(model?.Subject ?? "Topic")</PageTitle>
 
@@ -53,16 +56,24 @@
         {
             <article class="fz-post">
                 <header class="fz-post-user">
-                    <span class="fz-avatar" aria-hidden="true">
-                        @if (photos.TryGetValue(post.AuthorUserId, out var photo))
+                    <div class="fz-user-head">
+                        <span class="fz-avatar" aria-hidden="true">
+                            @if (photos.TryGetValue(post.AuthorUserId, out var photo))
+                            {
+                                <img src="@photo" alt="" />
+                            }
+                            else
+                            {
+                                @ForumInitials.From(post.AuthorName)
+                            }
+                        </span>
+                        @if (CanMessage(post))
                         {
-                            <img src="@photo" alt="" />
+                            <a class="nf-icon-button" href="@Urls.To($"messages?withUser={Uri.EscapeDataString(post.AuthorUserId)}")" title="Send message" aria-label="Send message">
+                                <Icon Name="mail" />
+                            </a>
                         }
-                        else
-                        {
-                            @ForumInitials.From(post.AuthorName)
-                        }
-                    </span>
+                    </div>
                     <div>
                         <span class="fz-user-name">@post.AuthorName</span>
                         <div class="fz-sub">@post.AuthorPostCount posts</div>
@@ -84,9 +95,13 @@
                                 <span> · edited</span>
                             }
                         </span>
-                        @if (post.CanEdit || post.CanDelete)
+                        @if (model.CanReply || post.CanEdit || post.CanDelete)
                         {
                             <span class="fz-actions">
+                                @if (model.CanReply)
+                                {
+                                    <button type="button" class="nf-button" @onclick="() => QuoteAsync(post)" disabled="@saving">Quote</button>
+                                }
                                 @if (post.CanEdit)
                                 {
                                     <button type="button" class="nf-button" @onclick="() => Edit(post)">Edit</button>
@@ -109,7 +124,7 @@
             <section class="fz-board">
                 <h2 class="fz-board-title">Reply</h2>
                 <EditForm Model="reply" OnValidSubmit="ReplyAsync" class="fz-compose">
-                    <PostComposer @bind-Text="reply.Text" @bind-Format="reply.Format" Label="Reply" />
+                    <PostComposer @ref="composer" @bind-Text="reply.Text" @bind-Format="reply.Format" Label="Reply" />
                     <div class="nf-form-actions">
                         <button type="submit" class="nf-button nf-button-primary" disabled="@saving">Post reply</button>
                     </div>
@@ -154,6 +169,7 @@
     public int PageNumber { get; set; }
 
     private readonly ReplyForm reply = new();
+    private PostComposer? composer;
     private TopicPageModel? model;
     private string? error;
     private bool loading = true;
@@ -243,6 +259,22 @@
         Toasts.Success("Reply posted.");
         await LoadAsync(true);
     }
+
+    private async Task QuoteAsync(PostModel post)
+    {
+        if (composer is null || saving)
+        {
+            return;
+        }
+
+        string quote = PostQuote.Format(post.AuthorName, post.Text, post.Format, reply.Format, Content);
+        await composer.InsertQuoteAsync(quote);
+    }
+
+    private bool CanMessage(PostModel post) =>
+        Users.IsAuthenticated()
+        && !string.IsNullOrWhiteSpace(post.AuthorUserId)
+        && !string.Equals(post.AuthorUserId, Users.GetCurrentUserId(), StringComparison.Ordinal);
 
     private void Edit(PostModel post)
     {

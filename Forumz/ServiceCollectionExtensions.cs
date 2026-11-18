@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         {
             services.AddForumzServices(configure);
             services.AddAuthorization();
+            services.Replace(ServiceDescriptor.Scoped<IChatTenant, ForumChatTenant>());
             services.TryAddScoped<IChatUserDirectory, ForumChatUserDirectory>();
             services.AddEasyChatz(options =>
             {

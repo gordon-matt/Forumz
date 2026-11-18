@@ -6,6 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="EasyChatz.Data.Npgsql" Version="2.0.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
 			<PrivateAssets>all</PrivateAssets>
@@ -15,7 +16,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Forumz.Data\Forumz.Data.csproj" />
-		<ProjectReference Include="..\..\..\Components\EasyChatz\EasyChatz.Data.Npgsql\EasyChatz.Data.Npgsql.csproj" />
 	</ItemGroup>
 
 </Project>

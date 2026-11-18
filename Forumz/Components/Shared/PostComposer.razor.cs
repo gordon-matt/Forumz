@@ -13,6 +13,7 @@ public partial class PostComposer : IDisposable
     private const string ModulePath = "/_content/Forumz/forumz.js";
 
     private int generation;
+    private ElementReference root;
     private MarkdownEditor? markdown;
     private string? pickError;
     private DotNetObjectReference<PostComposer>? selfReference;
@@ -49,6 +50,46 @@ public partial class PostComposer : IDisposable
 
     [Inject]
     private IJSRuntime Js { get; set; } = default!;
+
+    /// <summary>Inserts a quote at the caret and scrolls the editor into view.</summary>
+    /// <param name="snippet">Quote source in the editor's current format.</param>
+    public async Task InsertQuoteAsync(string snippet)
+    {
+        if (string.IsNullOrWhiteSpace(snippet))
+        {
+            return;
+        }
+
+        string? written = null;
+        try
+        {
+            written = await (await ModuleAsync()).InvokeAsync<string?>("insertQuote", root, snippet);
+        }
+        catch (JSDisconnectedException)
+        {
+            return;
+        }
+        catch (JSException)
+        {
+            written = null;
+        }
+
+        // Null means the Markdown preview is showing, or the rich text editor has not mounted.
+        // The bound text is what that preview and the later editor both read.
+        if (written is null)
+        {
+            await TextChanged.InvokeAsync(Append(Text, snippet));
+            return;
+        }
+
+        if (!string.Equals(written, Text, StringComparison.Ordinal))
+        {
+            await TextChanged.InvokeAsync(written);
+        }
+    }
+
+    private static string Append(string? current, string snippet) =>
+        string.IsNullOrWhiteSpace(current) ? snippet : current.TrimEnd() + "\n\n" + snippet;
 
     private async Task SwitchAsync(ContentFormat target)
     {

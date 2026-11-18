@@ -11,14 +11,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="EasyChatz.AspNetCore" Version="2.0.0" />
+		<PackageReference Include="EasyChatz.Components" Version="2.0.0" />
 		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.5" />
 		<PackageReference Include="Pickstack" Version="1.0.7" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Forumz.Services\Forumz.Services.csproj" />
-		<ProjectReference Include="..\..\..\Components\EasyChatz\EasyChatz.AspNetCore\EasyChatz.AspNetCore.csproj" />
-		<ProjectReference Include="..\..\..\Components\EasyChatz\EasyChatz.Components\EasyChatz.Components.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

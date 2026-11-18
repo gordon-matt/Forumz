@@ -177,6 +177,15 @@
     border-right: 1px solid var(--nf-border);
 }
 
+.fz-user-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.35rem;
+}
+
+.fz-user-head .fz-avatar { margin-bottom: 0.65rem; }
+
 .fz-avatar {
     display: grid;
     place-items: center;
@@ -221,6 +230,18 @@
 }
 
 .fz-post-body { padding: 1rem 1.1rem 0.85rem; }
+
+.fz-post-body .nf-markdown blockquote,
+.fz-composer .nf-markdown blockquote {
+    margin: 0.35rem 0 0.9rem;
+    padding: 0.1rem 0 0.1rem 0.85rem;
+    border-left: 3px solid var(--nf-accent);
+}
+
+.fz-post-body .nf-markdown blockquote blockquote,
+.fz-composer .nf-markdown blockquote blockquote {
+    border-left-color: var(--nf-border);
+}
 
 .fz-post-foot {
     display: flex;
