@@ -13,7 +13,6 @@ public sealed partial class ForumService(
     IRepository<ForumTopic> topics,
     IRepository<ForumPost> posts,
     IRepository<ForumSubscription> subscriptions,
-    IRepository<PrivateMessage> messages,
     IRepository<ForumMember> members,
     IRepository<ForumPreference> preferences,
     IForumContentRenderer content,

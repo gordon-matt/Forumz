@@ -65,7 +65,7 @@ public sealed class SampleSeeder(IServiceProvider services, ILogger<SampleSeeder
             new CreateTopicRequest(
                 forum.Value,
                 "Hello",
-                "This sample signs in as Dev User. Use the top bar to switch to Blair Chen or Casey Nguyen and send a private message. Posts are plain text."),
+                "This sample signs in as Dev User. Use the top bar to switch to Blair Chen or Casey Nguyen, then open Messages to write to either of them. Posts are plain text."),
             null,
             cancellationToken);
         if (!topic.IsSuccess)
@@ -77,7 +77,7 @@ public sealed class SampleSeeder(IServiceProvider services, ILogger<SampleSeeder
         var casey = DemoUsers.Find("casey");
         if (blair is not null)
         {
-            await ReplyAsync(forums, accessor, scope, blair, topic.Value, "Send me a private message from the Messages page.", cancellationToken);
+            await ReplyAsync(forums, accessor, scope, blair, topic.Value, "Open Messages and write to me there.", cancellationToken);
         }
 
         if (casey is not null)

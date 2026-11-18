@@ -86,7 +86,6 @@ internal static class ForumHarness
             database.Repository<ForumTopic>(),
             database.Repository<ForumPost>(),
             database.Repository<ForumSubscription>(),
-            database.Repository<PrivateMessage>(),
             database.Repository<ForumMember>(),
             database.Repository<ForumPreference>(),
             new ForumContentRenderer(),

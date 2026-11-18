@@ -38,13 +38,13 @@ Replace `IForumNotifier` to email subscribers. The default only logs.
 - Edit or delete your own posts, when settings allow it. Moderators can edit any post, move a topic, and remove it.
 - Search subjects and posts, and follow the newest replies.
 - Subscribe to a forum or a topic.
-- Send a private message to a member who already has a forum profile.
+- Send a direct message from Messages. Rooms are off. The other person needs a forum profile, which they get by posting or saving their own.
 - RSS at `/forums/feed` and `/forums/forum/{id}/feed`.
 - Manage groups, forums, and settings from `/forums/manage`.
 
 ## Sample
 
-`Forumz.Sample` seeds a welcome forum on an empty database. It opens signed in as Dev User, an administrator. The top bar switches to Blair Chen or Casey Nguyen, who are members, so a private message can be sent from one to the other.
+`Forumz.Sample` seeds a welcome forum on an empty database. It opens signed in as Dev User, an administrator. The top bar switches to Blair Chen or Casey Nguyen. Messages is EasyChatz with rooms turned off, so those three can write to each other directly.
 
 ```bash
 dotnet run --project Forumz.Sample

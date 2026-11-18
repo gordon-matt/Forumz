@@ -17,6 +17,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Forumz.Data\Forumz.Data.csproj" />
+		<ProjectReference Include="..\..\..\Components\EasyChatz\EasyChatz.Data.Sqlite\EasyChatz.Data.Sqlite.csproj" />
 	</ItemGroup>
 
 </Project>

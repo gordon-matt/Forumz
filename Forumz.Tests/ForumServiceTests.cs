@@ -154,27 +154,6 @@ public sealed class ForumServiceTests : IDisposable
         Assert.Equal(Ardalis.Result.ResultStatus.Invalid, deleted.Status);
     }
 
-    [Fact]
-    public async Task SendMessage_ToDisplayName_LandsInInbox()
-    {
-        var ada = new TestUser { UserId = "ada", Name = "Ada" };
-        var grace = new TestUser { UserId = "grace", Name = "Grace" };
-        var adaService = ForumHarness.Create(database, ada);
-        var graceService = ForumHarness.Create(database, grace);
-        await adaService.GetProfileAsync();
-        await graceService.GetProfileAsync();
-
-        var sent = await adaService.SendMessageAsync(new SendMessageRequest("Grace", "Hi", "Hello Grace"));
-        var inbox = await graceService.GetInboxAsync(1);
-        var opened = await graceService.GetMessageAsync(sent.Value);
-
-        Assert.True(sent.IsSuccess);
-        Assert.Single(inbox.Value.Items);
-        Assert.Equal(1, inbox.Value.UnreadCount);
-        Assert.True(opened.Value.IsRead);
-        Assert.Equal(0, (await graceService.GetUnreadMessageCountAsync()).Value);
-    }
-
     private async Task<int> CreateForumAsync()
     {
         var admin = new TestUser { Administrator = true, UserId = "admin", Name = "Admin" };

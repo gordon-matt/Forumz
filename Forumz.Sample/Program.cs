@@ -9,7 +9,6 @@ using Heroicsoft.NetForge.Components;
 using Heroicsoft.NetForge.Components.Layout;
 using Heroicsoft.NetForge.Components.Theming;
 using Pickstack;
-using Pickstack.FileManager.WebFilez;
 using Pickstack.RichTextEditor.TinyMce8;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,9 +21,9 @@ builder.Services.AddDemoUsers();
 // maps a circuit at the site root.
 builder.Services.AddControllersWithViews();
 builder.Services.AddPickstack(builder.Configuration)
-    .AddWebFilez()
     .AddTinyMce8(editor => editor
         .WithHeight(280)
+        .ShowPromotion(false)
         .WithToolbar("undo redo | bold italic underline | bullist numlist blockquote | link image | code"));
 
 builder.Services.AddForumz(options =>
@@ -45,7 +44,7 @@ builder.Services.Configure<ForgeShellOptions>(shell =>
 {
     shell.Brand = "Forumz";
     shell.BrandHref = "/forums";
-    shell.LogoUrl = "/img/Icon.png";
+    shell.LogoUrl = "/img/Logo.png";
     shell.LogoDarkUrl = "/img/Logo.png";
     shell.MarkUrl = "/img/Icon.png";
 });

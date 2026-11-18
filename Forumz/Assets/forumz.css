@@ -349,3 +349,46 @@
 
     .fz-post-foot { align-items: flex-start; flex-direction: column; }
 }
+
+/* EasyChatz sits in the forum document and follows the shell colours. */
+.ec-root[data-theme="netforge"] {
+    --ec-font: var(--nf-font);
+    --ec-radius: var(--nf-radius);
+    --ec-bg: var(--nf-bg);
+    --ec-surface: var(--nf-surface-2);
+    --ec-surface-raised: var(--nf-surface);
+    --ec-hover: var(--nf-hover);
+    --ec-border: var(--nf-border);
+    --ec-text: var(--nf-text);
+    --ec-muted: var(--nf-muted);
+    --ec-accent: var(--nf-accent);
+    --ec-accent-soft: var(--nf-accent-soft);
+    --ec-mine: var(--nf-accent);
+    --ec-mine-text: var(--nf-accent-text);
+    --ec-danger: var(--nf-danger);
+    --ec-success: var(--nf-success);
+    --ec-shadow: var(--nf-shadow);
+    --ec-backdrop: var(--nf-scrim);
+    color-scheme: inherit;
+}
+
+.nf-content:has(.fz-chat) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fz-chat {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    margin: -1.4rem -1.5rem -2.5rem;
+}
+
+.fz-chat .ec-root,
+.fz-chat .ec-shell {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+}

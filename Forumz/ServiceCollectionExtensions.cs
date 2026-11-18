@@ -1,4 +1,7 @@
+using EasyChatz;
+using EasyChatz.Services;
 using Forumz.Components;
+using Forumz.Services;
 using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Components;
 using Microsoft.AspNetCore.Components.Server.Circuits;
@@ -14,9 +17,9 @@ public static class ServiceCollectionExtensions
     extension(IServiceCollection services)
     {
         /// <summary>
-        /// Registers the forum services and the Blazor circuit. The host still chooses a database
-        /// with <c>AddForumzSqlite</c>, <c>AddForumzSqlServer</c>, <c>AddForumzNpgsql</c> or
-        /// <c>AddForumzMySql</c>, then calls <c>app.MapForumz()</c>.
+        /// Registers the forum services, EasyChatz for direct messages, and the Blazor circuit.
+        /// The host still chooses a database with <c>AddForumzSqlite</c>, <c>AddForumzSqlServer</c>,
+        /// <c>AddForumzNpgsql</c> or <c>AddForumzMySql</c>, which also stores chat, then calls <c>app.MapForumz()</c>.
         /// Replace <see cref="IForumPresentation"/> to choose, per request, between the host layout and the forum's own top bar.
         /// </summary>
         /// <param name="configure">Mount path, title, and the home and logout links.</param>
@@ -24,6 +27,13 @@ public static class ServiceCollectionExtensions
         public IServiceCollection AddForumz(Action<ForumzOptions>? configure = null)
         {
             services.AddForumzServices(configure);
+            services.AddAuthorization();
+            services.TryAddScoped<IChatUserDirectory, ForumChatUserDirectory>();
+            services.AddEasyChatz(options =>
+            {
+                options.AllowRooms = false;
+                options.SystemDisplayName = "Forumz";
+            });
             services.AddRazorComponents().AddInteractiveServerComponents();
             services.TryAddSingleton<IAuthProviderService>(new AuthProviderService(AuthProvider.Identity, null));
             services.AddNetForgeComponents();

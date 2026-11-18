@@ -15,6 +15,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Forumz.Data\Forumz.Data.csproj" />
+		<ProjectReference Include="..\..\..\Components\EasyChatz\EasyChatz.Data.Sql\EasyChatz.Data.Sql.csproj" />
 	</ItemGroup>
 
 </Project>

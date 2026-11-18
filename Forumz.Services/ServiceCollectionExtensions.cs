@@ -40,7 +40,6 @@ public static class ServiceCollectionExtensions
             services.TryAddScoped(Repository<ForumTopic>);
             services.TryAddScoped(Repository<ForumPost>);
             services.TryAddScoped(Repository<ForumSubscription>);
-            services.TryAddScoped(Repository<PrivateMessage>);
             services.TryAddScoped(Repository<ForumMember>);
             services.TryAddScoped(Repository<ForumPreference>);
             services.TryAddScoped<IForumService, ForumService>();

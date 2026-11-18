@@ -140,24 +140,6 @@ public interface IForumService
     /// <summary>The caller's subscriptions.</summary>
     Task<Result<SubscriptionListModel>> GetSubscriptionsAsync(int pageNumber, CancellationToken cancellationToken = default);
 
-    /// <summary>Messages sent to the caller.</summary>
-    Task<Result<MessageListModel>> GetInboxAsync(int pageNumber, CancellationToken cancellationToken = default);
-
-    /// <summary>Messages the caller sent.</summary>
-    Task<Result<MessageListModel>> GetSentAsync(int pageNumber, CancellationToken cancellationToken = default);
-
-    /// <summary>Opens a message. Opening it as the recipient marks it read.</summary>
-    Task<Result<PrivateMessageModel>> GetMessageAsync(int messageId, CancellationToken cancellationToken = default);
-
-    /// <summary>Sends a private message. Returns the message id.</summary>
-    Task<Result<int>> SendMessageAsync(SendMessageRequest request, CancellationToken cancellationToken = default);
-
-    /// <summary>Hides a message from the caller. The row is removed when both sides have deleted it.</summary>
-    Task<Result> DeleteMessageAsync(int messageId, CancellationToken cancellationToken = default);
-
-    /// <summary>Unread inbox messages. Zero when the caller is signed out or messages are off.</summary>
-    Task<Result<int>> GetUnreadMessageCountAsync(CancellationToken cancellationToken = default);
-
     /// <summary>Settings for the current tenant, creating the row from options the first time.</summary>
     Task<Result<ForumSettingsModel>> GetSettingsAsync(CancellationToken cancellationToken = default);
 

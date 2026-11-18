@@ -1,3 +1,4 @@
+using EasyChatz;
 using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Results;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +13,8 @@ public static class EndpointRouteBuilderExtensions
     extension(IEndpointRouteBuilder endpoints)
     {
         /// <summary>
-        /// Mounts the forum at <see cref="ForumzOptions.BasePath"/>. Reading is anonymous by default.
+        /// Mounts the forum at <see cref="ForumzOptions.BasePath"/>, and EasyChatz for direct messages.
+        /// Reading the forum is anonymous by default. Chat requires a signed-in user.
         /// Require authorization on the returned group only when the whole forum is private:
         /// <c>app.MapForumz().RequireAuthorization()</c>.
         /// The forum document is always mapped. <see cref="IForumPresentation"/> leaves a request on the
@@ -21,6 +23,9 @@ public static class EndpointRouteBuilderExtensions
         /// <returns>The route group, including the circuit and the feeds.</returns>
         public RouteGroupBuilder MapForumz()
         {
+            endpoints.MapEasyChatzApi().RequireAuthorization();
+            endpoints.MapEasyChatzHub().RequireAuthorization();
+
             var options = endpoints.ServiceProvider.GetRequiredService<IOptions<ForumzOptions>>().Value;
             var group = endpoints.MapGroup(options.BasePath);
 

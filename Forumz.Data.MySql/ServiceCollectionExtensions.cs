@@ -1,3 +1,5 @@
+using EasyChatz.Data.MySql;
+
 namespace Forumz.Data.MySql;
 
 /// <summary>Registers MySQL as Forumz's store.</summary>
@@ -5,7 +7,7 @@ public static class ServiceCollectionExtensions
 {
     extension(IServiceCollection services)
     {
-        /// <summary>Stores forums in MySQL. Table names are prefixed because a MySQL schema is a database.</summary>
+        /// <summary>Stores forums in MySQL. Table names are prefixed because a MySQL schema is a database. EasyChatz uses the same database, with its own prefix.</summary>
         /// <param name="connectionString">MySQL connection string.</param>
         /// <returns>The same collection.</returns>
         public IServiceCollection AddForumzMySql(string connectionString)
@@ -13,6 +15,7 @@ public static class ServiceCollectionExtensions
             ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
             services.RemoveAll<IForumDbContextFactory>();
             services.AddSingleton<IForumDbContextFactory>(new ForumzDbContextFactory(connectionString));
+            services.AddEasyChatzMySql(connectionString);
             return services;
         }
     }
