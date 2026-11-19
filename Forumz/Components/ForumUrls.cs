@@ -12,19 +12,14 @@ public sealed class ForumUrls(IOptions<ForumzOptions> options)
     /// <summary>The forum home.</summary>
     public string Home => To(string.Empty);
 
-    /// <summary>Stylesheet address. Rooted when the host document's base href is the site root.</summary>
+    /// <summary>Stylesheet address. Rooted at the site, so the forum's base href does not move it.</summary>
     public string Stylesheet => Asset("forumz.css");
 
     /// <summary>
-    /// An embedded asset. Rooted when the host document's base href is the site root, so a module
-    /// import does not resolve under that base and miss the mount path.
+    /// An embedded asset. Always a root path, so the host document and the forum document request the same file.
     /// </summary>
-    /// <param name="name">File name under the forum's assets, such as <c>forumz.css</c>.</param>
-    public string Asset(string name)
-    {
-        string relative = EmbeddedAssets.Url(name);
-        return InHost ? $"{options.Value.BasePath.TrimEnd('/')}/{relative}" : relative;
-    }
+    /// <param name="name">File name under the forum's <c>wwwroot</c>, such as <c>forumz.css</c>.</param>
+    public string Asset(string name) => EmbeddedAssets.Url(name);
 
     /// <summary>A page or feed under the forum. <paramref name="relative"/> may include a query string.</summary>
     /// <param name="relative">Path relative to the forum, such as <c>topic/1</c>.</param>

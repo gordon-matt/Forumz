@@ -1,4 +1,6 @@
 using EasyChatz;
+using Heroicsoft.NetForge.Components;
+using Heroicsoft.NetForge.WebAssets;
 using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Results;
 using Microsoft.AspNetCore.Hosting;
@@ -25,11 +27,12 @@ public static class EndpointRouteBuilderExtensions
         {
             endpoints.MapEasyChatzApi().RequireAuthorization();
             endpoints.MapEasyChatzHub().RequireAuthorization();
+            endpoints.MapEmbeddedContent(typeof(EndpointRouteBuilderExtensions).Assembly);
+            endpoints.MapNetForgeAssets();
 
             var options = endpoints.ServiceProvider.GetRequiredService<IOptions<ForumzOptions>>().Value;
             var group = endpoints.MapGroup(options.BasePath);
 
-            group.MapGet("_assets/{name}", EmbeddedAssets.Serve).ExcludeFromDescription();
             // The browser file stream's chunks never arrive on a host circuit, and the framework
             // then treats the wait as a fatal circuit error. A form post does not use that stream.
             group.MapPost("profile-photo", UploadPhotoAsync).DisableAntiforgery().ExcludeFromDescription();
