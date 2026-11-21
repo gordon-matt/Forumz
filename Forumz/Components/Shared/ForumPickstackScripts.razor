@@ -1,0 +1,40 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime Js
+@inject IServiceProvider Services
+
+@*
+    The forum's own document and the host layout both need the registered editor.
+    PickstackScripts lets a failed import dispose the whole circuit. A host can refuse
+    this script to anonymous visitors, and the forum still has to open.
+*@
+
+@code {
+    private bool started;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || started)
+        {
+            return;
+        }
+
+        started = true;
+        var includes = PickstackPageScripts.Resolve(Services);
+        if (includes.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            await using var module = await Js.InvokeAsync<IJSObjectReference>("import", "/pickstack/assets/load.js");
+            await module.InvokeVoidAsync("load", includes);
+        }
+        catch (JSException)
+        {
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+}

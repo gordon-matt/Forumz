@@ -3,6 +3,8 @@
 @inject ForumUrls Urls
 
 @* The host already has its top bar. The forum's links sit under it, and the page is the body. *@
+@* The host layout does not load Pickstack, so the editor scripts are started here. *@
+<ForumPickstackScripts />
 @if (Options.Value.PublicLayout is { } layout)
 {
     <LayoutView Layout="layout">

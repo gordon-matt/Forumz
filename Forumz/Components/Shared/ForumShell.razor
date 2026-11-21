@@ -1,11 +1,8 @@
 @using EasyChatz.Components
-@using Microsoft.JSInterop
 @inject IOptions<ForumzOptions> Options
 @inject IOptions<ForgeShellOptions> Shell
 @inject IUserContextService Users
 @inject NavigationManager Navigation
-@inject IJSRuntime Js
-@inject IServiceProvider ScriptServices
 
 <AppShell Brand="@Brand"
           BrandHref="@(string.IsNullOrWhiteSpace(Options.Value.HomePath) ? "./" : Options.Value.HomePath)"
@@ -49,6 +46,7 @@
         @ChildContent
     </ChildContent>
 </AppShell>
+<ForumPickstackScripts />
 
 @code {
     [Parameter]
@@ -94,30 +92,5 @@
     {
         string term = text?.Trim() ?? string.Empty;
         Navigation.NavigateTo(term.Length == 0 ? "search" : $"search?q={Uri.EscapeDataString(term)}");
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-        {
-            return;
-        }
-
-        // PickstackScripts lets a failed import dispose the whole circuit. A host can refuse this
-        // script to anonymous visitors, and the forum still has to open. Editors that can reach it still load.
-        var includes = PickstackPageScripts.Resolve(ScriptServices);
-        if (includes.Count == 0)
-        {
-            return;
-        }
-
-        try
-        {
-            await using var module = await Js.InvokeAsync<IJSObjectReference>("import", "/pickstack/assets/load.js");
-            await module.InvokeVoidAsync("load", includes);
-        }
-        catch (JSException)
-        {
-        }
     }
 }
