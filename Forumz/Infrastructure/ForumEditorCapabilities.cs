@@ -5,13 +5,16 @@ namespace Forumz.Infrastructure;
 
 /// <summary>
 /// Which editors this site offers. The host registers a rich text editor and a file manager with
-/// Pickstack; Forumz only asks whether they are there.
+/// Pickstack; Forumz only asks whether they are there. <see cref="ForumzOptions.UseFileManager"/>
+/// can leave the host's file manager in place for the rest of the site and keep it out of the forum.
 /// </summary>
 internal sealed class ForumEditorCapabilities(IServiceProvider services, IOptions<ForumzOptions> options)
 {
+    private readonly bool fileManagerRegistered = services.GetService<IFileManager>() is not null;
+
     public bool HasRichTextEditor { get; } = services.GetService<IRichTextEditor>() is not null;
 
-    public bool HasFileManager { get; } = services.GetService<IFileManager>() is not null;
+    public bool HasFileManager => fileManagerRegistered && options.Value.UseFileManager;
 
     public bool AllowsMarkdown => options.Value.EditorMode != ForumEditorMode.RichText || !HasRichTextEditor;
 

@@ -52,4 +52,4 @@ dotnet run --project Forumz.Sample
 
 ## Inferno
 
-The Inferno plugin `Inferno.Plugins.Messaging.Forumz` references this library, stores the tables in the CMS database, and scopes forums and direct messages to the current Flatmate tenant. Posting requires the Forums permission. Moderating requires Moderate forums.
+The Inferno plugin `Inferno.Plugins.Messaging.Forumz` references this library, stores the tables in the CMS database, and scopes forums and direct messages to the current Flatmate tenant. Posting requires the Forums permission. Moderating requires Moderate forums. The plugin sets `UseFileManager` to false, so forum posts keep the editor's own insert dialog while the rest of the CMS still uses its file manager.

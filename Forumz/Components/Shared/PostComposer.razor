@@ -9,7 +9,7 @@
 
     @if (Format == ContentFormat.Html && Capabilities.HasRichTextEditor)
     {
-        <PickstackEditor @key="generation" Value="@Text" ValueChanged="TextChanged" Height="280" />
+        <PickstackEditor @key="generation" Value="@Text" ValueChanged="TextChanged" Height="280" FileManager="@Capabilities.HasFileManager" />
     }
     else
     {

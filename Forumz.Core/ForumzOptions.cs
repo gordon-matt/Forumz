@@ -111,6 +111,12 @@ public sealed class ForumzOptions
     /// <summary>Markdown, rich text, or both. Rich text needs a Pickstack editor registered by the host.</summary>
     public ForumEditorMode EditorMode { get; set; } = ForumEditorMode.Both;
 
+    /// <summary>
+    /// When false, forum posts do not open the host's file manager. The rich text editor keeps its own
+    /// insert dialog, and the Markdown image button stays hidden. Other editors on the same site are unchanged.
+    /// </summary>
+    public bool UseFileManager { get; set; } = true;
+
     /// <summary>The editor a new post opens in when both are available.</summary>
     public ContentFormat DefaultContentFormat { get; set; } = ContentFormat.Markdown;
 
