@@ -28,7 +28,7 @@ public class ForumMember : BaseEntity<int>
     public DateTime UpdatedOnUtc { get; set; }
 }
 
-/// <summary>Maps <see cref="ForumMember"/>.</summary>
+/// <summary>Maps a member. One row exists per tenant and host user id.</summary>
 public class ForumMemberMap : IEntityTypeConfiguration<ForumMember>
 {
     /// <inheritdoc />

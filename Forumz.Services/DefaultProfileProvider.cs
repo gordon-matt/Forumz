@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Forumz.Services;
 
-/// <summary>Stores profile photos as files under wwwroot, in <see cref="ForumzOptions.ProfilePhotoPath"/>.</summary>
+/// <summary>
+/// Stores profile photos as files under wwwroot, in <see cref="ForumzOptions.ProfilePhotoPath"/>.
+/// Saving or removing a photo for anyone but the signed-in member is forbidden. A folder that leaves wwwroot is rejected.
+/// A missing photo, or a site with no wwwroot, is reported by <see cref="IProfileProvider.GetAsync"/> as an empty photo address.
+/// </summary>
 public sealed class DefaultProfileProvider(
     IOptions<ForumzOptions> options,
     IWebHostEnvironment environment,

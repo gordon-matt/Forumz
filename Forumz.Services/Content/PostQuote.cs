@@ -16,6 +16,8 @@ public static partial class PostQuote
     /// <param name="sourceFormat">How <paramref name="source"/> is stored.</param>
     /// <param name="targetFormat">How the reply is being written.</param>
     /// <param name="renderer">Renders and sanitizes when the quote has to become HTML, or HTML has to become words.</param>
+    /// <returns>The quote, ready to insert into a reply written in <paramref name="targetFormat"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="renderer"/> is null.</exception>
     public static string Format(
         string? authorName,
         string? source,

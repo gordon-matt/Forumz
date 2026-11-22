@@ -132,11 +132,11 @@ public sealed record TopicPageModel(
     int PageSize,
     int TotalCount);
 
-/// <summary>One post. <see cref="Text"/> is plain text; the page encodes it.</summary>
+/// <summary>One post. <see cref="Html"/> is what a page renders. <see cref="Text"/> is the source the editor loads.</summary>
 /// <param name="Id">Post id.</param>
 /// <param name="AuthorUserId">Host user id of the author.</param>
 /// <param name="AuthorName">Name shown on the post.</param>
-/// <param name="Text">Plain text body.</param>
+/// <param name="Text">Markdown or HTML, according to <paramref name="Format"/>.</param>
 /// <param name="Signature">Author signature when signatures are enabled.</param>
 /// <param name="CreatedOnUtc">When the post was written.</param>
 /// <param name="UpdatedOnUtc">When the post was last edited. Equal to <paramref name="CreatedOnUtc"/> until then.</param>

@@ -1,6 +1,6 @@
 namespace Forumz.Data.Entities;
 
-/// <summary>A post. The body is plain text; the page encodes it when rendering.</summary>
+/// <summary>A post. <see cref="Text"/> is the Markdown or HTML source. The page renders the sanitized HTML, so the source is not written into the page as markup.</summary>
 public class ForumPost : BaseEntity<int>
 {
     /// <summary>Topic the post belongs to.</summary>
@@ -25,7 +25,7 @@ public class ForumPost : BaseEntity<int>
     public DateTime UpdatedOnUtc { get; set; }
 }
 
-/// <summary>Maps <see cref="ForumPost"/>.</summary>
+/// <summary>Maps a post. The format is stored as an integer, Markdown is the default, and deleting the topic is restricted.</summary>
 public class ForumPostMap : IEntityTypeConfiguration<ForumPost>
 {
     /// <inheritdoc />

@@ -2,7 +2,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace Forumz.Services.Hosting;
 
-/// <summary>Applies Forumz migrations before the host serves requests. A missing provider does not stop the host.</summary>
+/// <summary>
+/// Applies Forumz migrations before the host serves requests when <see cref="ForumzOptions.AutoMigrate"/> is on.
+/// A missing provider, or a migration that fails, is logged and does not stop the host.
+/// </summary>
 public sealed class ForumzDatabaseInitializer(
     ILogger<ForumzDatabaseInitializer> logger,
     IServiceProvider services,

@@ -22,7 +22,7 @@ public class ForumSubscription : BaseEntity<int>
     public DateTime CreatedOnUtc { get; set; }
 }
 
-/// <summary>Maps <see cref="ForumSubscription"/>.</summary>
+/// <summary>Maps a subscription. The tenant, user, forum, and topic together are unique.</summary>
 public class ForumSubscriptionMap : IEntityTypeConfiguration<ForumSubscription>
 {
     /// <inheritdoc />

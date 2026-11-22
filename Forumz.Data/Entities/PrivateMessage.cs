@@ -33,7 +33,7 @@ public class PrivateMessage : BaseEntity<int>
     public DateTime CreatedOnUtc { get; set; }
 }
 
-/// <summary>Maps <see cref="PrivateMessage"/>.</summary>
+/// <summary>Maps a private message, with indexes for the recipient's inbox and the sender's sent list.</summary>
 public class PrivateMessageMap : IEntityTypeConfiguration<PrivateMessage>
 {
     /// <inheritdoc />

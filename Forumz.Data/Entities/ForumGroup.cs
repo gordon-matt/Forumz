@@ -19,7 +19,7 @@ public class ForumGroup : BaseEntity<int>
     public DateTime UpdatedOnUtc { get; set; }
 }
 
-/// <summary>Maps <see cref="ForumGroup"/>.</summary>
+/// <summary>Maps a group. The tenant id is required, and groups are indexed by tenant and display order.</summary>
 public class ForumGroupMap : IEntityTypeConfiguration<ForumGroup>
 {
     /// <inheritdoc />

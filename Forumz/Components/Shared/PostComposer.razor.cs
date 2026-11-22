@@ -128,7 +128,9 @@ public partial class PostComposer : IDisposable
         }
     }
 
-    /// <summary>Called by the file picker with the chosen image address.</summary>
+    /// <summary>Called by the file picker. A blank address is ignored. Any other address is inserted as a Markdown image.</summary>
+    /// <param name="url">The address the picker returned.</param>
+    /// <returns>A task that completes once the image has been inserted, or immediately when there is nothing to insert.</returns>
     [JSInvokable]
     public async Task InsertImageAsync(string? url)
     {

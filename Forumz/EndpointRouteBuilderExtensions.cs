@@ -21,6 +21,8 @@ public static class EndpointRouteBuilderExtensions
         /// <c>app.MapForumz().RequireAuthorization()</c>.
         /// The forum document is always mapped. <see cref="IForumPresentation"/> leaves a request on the
         /// host's router when the host layout should draw it, and serves the document when the forum keeps its own top bar.
+        /// A feed that can be built is returned as <c>text/xml</c> in UTF-8. A caller who may not read it receives HTTP 403, and any other failure, including feeds being turned off, receives HTTP 404.
+        /// Profile photos are posted to <c>profile-photo</c>. An unsigned caller receives HTTP 401.
         /// </summary>
         /// <returns>The route group, including the circuit and the feeds.</returns>
         public RouteGroupBuilder MapForumz()

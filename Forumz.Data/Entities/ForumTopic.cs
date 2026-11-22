@@ -40,7 +40,7 @@ public class ForumTopic : BaseEntity<int>
     public int NumReplies => NumPosts > 0 ? NumPosts - 1 : 0;
 }
 
-/// <summary>Maps <see cref="ForumTopic"/>.</summary>
+/// <summary>Maps a topic. The type is stored as its byte value, and deleting the forum is restricted.</summary>
 public class ForumTopicMap : IEntityTypeConfiguration<ForumTopic>
 {
     /// <inheritdoc />

@@ -27,7 +27,10 @@ public static class ForumzMenuExtensions
 {
     extension(INetForgeMenuGroupBuilder menu)
     {
-        /// <summary>Adds the forum. The link is a full page load because the forum is its own Blazor document.</summary>
+        /// <summary>
+        /// Adds the forum. The link leaves this document when the forum keeps its own top bar.
+        /// When a host layout is set, the link stays in that document.
+        /// </summary>
         /// <param name="configure">Replaces the title, icon, or address.</param>
         /// <returns>The same group.</returns>
         public INetForgeMenuGroupBuilder AddForumz(Action<NetForgeMenuItemOptions>? configure = null) =>

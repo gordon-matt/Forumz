@@ -25,7 +25,7 @@ public class ForumzDbContextFactory(string connectionString) : IForumDbContextFa
 
     /// <summary>Options used by the app and by <c>dotnet ef</c>.</summary>
     /// <param name="connectionString">SQLite connection string.</param>
-    /// <returns>The options.</returns>
+    /// <returns>Options for this connection string, including Forumz's migration history table.</returns>
     public static DbContextOptions<ForumzDbContext> BuildOptions(string connectionString)
     {
         var builder = new DbContextOptionsBuilder<ForumzDbContext>();

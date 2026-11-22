@@ -6,28 +6,28 @@ namespace Forumz.Data;
 /// </summary>
 public abstract class ForumzDbContextBase(DbContextOptions options) : DbContext(options)
 {
-    /// <summary>Gets the forum groups.</summary>
+    /// <summary>Groups. A multi-tenant host filters these by tenant; an empty tenant id is the single site.</summary>
     public DbSet<ForumGroup> Groups => Set<ForumGroup>();
 
-    /// <summary>Gets the forums.</summary>
+    /// <summary>Forums. Counts on each row are maintained by the service.</summary>
     public DbSet<Forum> Forums => Set<Forum>();
 
-    /// <summary>Gets the topics.</summary>
+    /// <summary>Topics. <see cref="ForumTopic.NumPosts"/> includes the opening post.</summary>
     public DbSet<ForumTopic> Topics => Set<ForumTopic>();
 
-    /// <summary>Gets the posts.</summary>
+    /// <summary>Posts. <see cref="ForumPost.Text"/> is Markdown or HTML, and the page renders the sanitized HTML.</summary>
     public DbSet<ForumPost> Posts => Set<ForumPost>();
 
-    /// <summary>Gets the subscriptions.</summary>
+    /// <summary>Forum and topic subscriptions. A topic id of 0 follows the whole forum.</summary>
     public DbSet<ForumSubscription> Subscriptions => Set<ForumSubscription>();
 
-    /// <summary>Gets the private messages.</summary>
+    /// <summary>Private messages. A row remains until both sides have deleted it.</summary>
     public DbSet<PrivateMessage> Messages => Set<PrivateMessage>();
 
-    /// <summary>Gets the member profiles.</summary>
+    /// <summary>Display names, signatures, and post counts, keyed by the host's user id.</summary>
     public DbSet<ForumMember> Members => Set<ForumMember>();
 
-    /// <summary>Gets the settings rows.</summary>
+    /// <summary>One settings row per tenant, created from the options the first time that tenant is used.</summary>
     public DbSet<ForumPreference> Preferences => Set<ForumPreference>();
 
     /// <summary>

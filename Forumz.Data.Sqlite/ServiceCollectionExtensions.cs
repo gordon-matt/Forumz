@@ -11,6 +11,8 @@ public static class ServiceCollectionExtensions
         /// <summary>
         /// Stores forums in SQLite, and EasyChatz in the same file. When <paramref name="connectionString"/>
         /// is omitted, the file is <c>Forumz.db</c> under the host's local application data, so a redeploy does not wipe it.
+        /// Replaces a factory already registered, so calling a different provider afterwards switches storage.
+        /// Tables are prefixed because SQLite has no schemas, and each connection turns foreign keys on.
         /// </summary>
         /// <param name="connectionString">A SQLite connection string, or null for the default file.</param>
         /// <returns>The same collection.</returns>

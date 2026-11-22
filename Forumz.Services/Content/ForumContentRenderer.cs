@@ -6,7 +6,13 @@ namespace Forumz.Services.Content;
 /// <summary>Turns a post's source into the HTML a reader is shown. The source itself stays in the database.</summary>
 public interface IForumContentRenderer
 {
-    /// <summary>Sanitized HTML. Markdown is rendered first. Empty source returns an empty string.</summary>
+    /// <summary>
+    /// Sanitized HTML. Markdown is rendered first, and raw HTML inside Markdown is dropped.
+    /// Empty or white-space source returns an empty string.
+    /// </summary>
+    /// <param name="source">The stored Markdown or HTML.</param>
+    /// <param name="format">Which of the two <paramref name="source"/> is.</param>
+    /// <returns>HTML a page can render, or an empty string.</returns>
     string ToHtml(string? source, ContentFormat format);
 }
 

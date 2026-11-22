@@ -1,6 +1,6 @@
 namespace Forumz.Data.Npgsql;
 
-/// <summary>PostgreSQL context.</summary>
+/// <summary>The PostgreSQL context. Tables live in the <c>forumz</c> schema, and migrations are stored in Forumz's own history table.</summary>
 public class ForumzDbContext(DbContextOptions<ForumzDbContext> options) : ForumzDbContextBase(options)
 {
 }
@@ -21,7 +21,7 @@ public class ForumzDbContextFactory(string connectionString) : IForumDbContextFa
 
     /// <summary>Options used by the app and by <c>dotnet ef</c>.</summary>
     /// <param name="connectionString">PostgreSQL connection string.</param>
-    /// <returns>The options.</returns>
+    /// <returns>Options for this connection string, including Forumz's migration history table.</returns>
     public static DbContextOptions<ForumzDbContext> BuildOptions(string connectionString)
     {
         var builder = new DbContextOptionsBuilder<ForumzDbContext>();

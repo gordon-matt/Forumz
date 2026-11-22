@@ -3,7 +3,7 @@ namespace Forumz.Models;
 /// <summary>Starts a topic. The first post is <see cref="Text"/>.</summary>
 /// <param name="ForumId">Forum that will hold the topic.</param>
 /// <param name="Subject">Subject line.</param>
-/// <param name="Text">First post, as plain text.</param>
+/// <param name="Text">The opening post, as Markdown or HTML according to <paramref name="Format"/>.</param>
 /// <param name="TopicType">Ignored unless the caller can moderate. Everyone else gets a normal topic.</param>
 /// <param name="Format">Markdown unless the author used the rich text editor.</param>
 public sealed record CreateTopicRequest(int ForumId, string Subject, string Text, ForumTopicType TopicType = ForumTopicType.Normal, ContentFormat Format = ContentFormat.Markdown);

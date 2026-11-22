@@ -40,7 +40,7 @@ public class Forum : BaseEntity<int>
     public DateTime UpdatedOnUtc { get; set; }
 }
 
-/// <summary>Maps <see cref="Forum"/>.</summary>
+/// <summary>Maps a forum. Deleting its group is restricted, so the group stays until the forum is removed.</summary>
 public class ForumMap : IEntityTypeConfiguration<Forum>
 {
     /// <inheritdoc />

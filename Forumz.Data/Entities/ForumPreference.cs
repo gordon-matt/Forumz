@@ -67,7 +67,7 @@ public class ForumPreference : BaseEntity<int>
     public int FeedCount { get; set; } = 20;
 }
 
-/// <summary>Maps <see cref="ForumPreference"/>.</summary>
+/// <summary>Maps the settings row. The tenant id is unique, so each tenant has one row.</summary>
 public class ForumPreferenceMap : IEntityTypeConfiguration<ForumPreference>
 {
     /// <inheritdoc />
