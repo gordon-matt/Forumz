@@ -231,6 +231,17 @@
 
 .fz-post-body { padding: 1rem 1.1rem 0.85rem; }
 
+.fz-composer .fz-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
 .fz-post-body .nf-markdown blockquote,
 .fz-composer .nf-markdown blockquote {
     margin: 0.35rem 0 0.9rem;

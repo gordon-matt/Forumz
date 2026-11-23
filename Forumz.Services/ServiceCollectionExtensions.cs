@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
             services.TryAddScoped<IForumNotifier, LoggingForumNotifier>();
             services.TryAddScoped<IForumContentRenderer, ForumContentRenderer>();
             services.TryAddScoped<IProfileProvider, DefaultProfileProvider>();
+            services.TryAddScoped<IPostImageStore, PostImageStore>();
 
             services.TryAddScoped(Repository<ForumGroup>);
             services.TryAddScoped(Repository<Forum>);

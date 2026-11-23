@@ -23,6 +23,7 @@ public static class EndpointRouteBuilderExtensions
         /// host's router when the host layout should draw it, and serves the document when the forum keeps its own top bar.
         /// A feed that can be built is returned as <c>text/xml</c> in UTF-8. A caller who may not read it receives HTTP 403, and any other failure, including feeds being turned off, receives HTTP 404.
         /// Profile photos are posted to <c>profile-photo</c>. An unsigned caller receives HTTP 401.
+        /// Markdown images are posted to <c>post-image</c>. An unsigned caller receives HTTP 401, and a caller who cannot post receives HTTP 403.
         /// </summary>
         /// <returns>The route group, including the circuit and the feeds.</returns>
         public RouteGroupBuilder MapForumz()
@@ -38,6 +39,7 @@ public static class EndpointRouteBuilderExtensions
             // The browser file stream's chunks never arrive on a host circuit, and the framework
             // then treats the wait as a fatal circuit error. A form post does not use that stream.
             group.MapPost("profile-photo", UploadPhotoAsync).DisableAntiforgery().ExcludeFromDescription();
+            group.MapPost("post-image", UploadPostImageAsync).DisableAntiforgery().ExcludeFromDescription();
             group.MapGet("feed", (IForumService forums, HttpContext context, CancellationToken cancellationToken) =>
                 FeedAsync(forums, context, null, cancellationToken));
             group.MapGet("forum/{forumId:int}/feed", (int forumId, IForumService forums, HttpContext context, CancellationToken cancellationToken) =>
@@ -90,6 +92,48 @@ public static class EndpointRouteBuilderExtensions
         if (saved.IsSuccess)
         {
             return Results.Ok(new { photoUri = saved.Value.PhotoUri });
+        }
+
+        string detail = saved.GetDisplayMessage();
+        return saved.Status == Ardalis.Result.ResultStatus.Forbidden
+            ? Results.Json(new { detail }, statusCode: StatusCodes.Status403Forbidden)
+            : Results.BadRequest(new { detail });
+    }
+
+    private static async Task<IResult> UploadPostImageAsync(
+        HttpRequest request,
+        IUserContextService users,
+        IForumAccess access,
+        IPostImageStore images,
+        CancellationToken cancellationToken)
+    {
+        if (!users.IsAuthenticated())
+        {
+            return Results.Unauthorized();
+        }
+
+        if (!access.CanWrite())
+        {
+            return Results.Json(new { detail = "You do not have permission to post." }, statusCode: StatusCodes.Status403Forbidden);
+        }
+
+        if (!request.HasFormContentType)
+        {
+            return Results.BadRequest(new { detail = "Choose an image." });
+        }
+
+        var form = await request.ReadFormAsync(cancellationToken);
+        var file = form.Files.GetFile("image");
+        if (file is null || file.Length == 0)
+        {
+            return Results.BadRequest(new { detail = "Choose an image." });
+        }
+
+        await using var content = file.OpenReadStream();
+        var saved = await images.SaveAsync(content, file.ContentType, cancellationToken);
+        if (saved.IsSuccess)
+        {
+            return Results.Ok(new { url = saved.Value });
         }
 
         string detail = saved.GetDisplayMessage();

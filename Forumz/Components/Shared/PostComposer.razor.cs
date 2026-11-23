@@ -14,6 +14,7 @@ public partial class PostComposer : IDisposable
 
     private int generation;
     private ElementReference root;
+    private ElementReference imageFile;
     private MarkdownEditor? markdown;
     private string? pickError;
     private DotNetObjectReference<PostComposer>? selfReference;
@@ -50,6 +51,9 @@ public partial class PostComposer : IDisposable
 
     [Inject]
     private IJSRuntime Js { get; set; } = default!;
+
+    [Inject]
+    private ForumUrls Urls { get; set; } = default!;
 
     /// <summary>Inserts a quote at the caret and scrolls the editor into view.</summary>
     /// <param name="snippet">Quote source in the editor's current format.</param>
@@ -113,9 +117,30 @@ public partial class PostComposer : IDisposable
         await FormatChanged.InvokeAsync(target);
     }
 
-    private async Task PickImageAsync()
+    private async Task ChooseImageAsync()
     {
         pickError = null;
+        if (Capabilities.HasFileManager)
+        {
+            await PickFromManagerAsync();
+            return;
+        }
+
+        try
+        {
+            await (await ModuleAsync()).InvokeVoidAsync("chooseFile", imageFile);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (JSException)
+        {
+            pickError = "The image could not be chosen.";
+        }
+    }
+
+    private async Task PickFromManagerAsync()
+    {
         selfReference ??= DotNetObjectReference.Create(this);
 
         try
@@ -125,6 +150,33 @@ public partial class PostComposer : IDisposable
         catch (JSException)
         {
             pickError = "The file picker did not open. Check that the site registers a Pickstack file manager.";
+        }
+    }
+
+    private async Task UploadLocalImageAsync()
+    {
+        pickError = null;
+
+        try
+        {
+            await using var upload = await Js.InvokeAsync<IJSObjectReference>("import", Urls.Asset("forumz-upload.js"));
+            var outcome = await upload.InvokeAsync<ImageUploadOutcome>("upload", imageFile, Urls.To("post-image"), "image");
+            if (!outcome.Ok || string.IsNullOrWhiteSpace(outcome.Url))
+            {
+                pickError = string.IsNullOrWhiteSpace(outcome.Message)
+                    ? "The image could not be uploaded. Try a smaller image."
+                    : outcome.Message;
+                return;
+            }
+
+            await InsertImageAsync(outcome.Url);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (JSException)
+        {
+            pickError = "The image could not be uploaded. Try a smaller image.";
         }
     }
 
@@ -147,4 +199,13 @@ public partial class PostComposer : IDisposable
 
     private Task<IJSObjectReference> ModuleAsync() =>
         module ??= Js.InvokeAsync<IJSObjectReference>("import", ModulePath).AsTask();
+
+    private sealed class ImageUploadOutcome
+    {
+        public bool Ok { get; set; }
+
+        public string Message { get; set; } = string.Empty;
+
+        public string Url { get; set; } = string.Empty;
+    }
 }

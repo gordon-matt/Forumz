@@ -67,6 +67,16 @@ function padQuote(before, snippet, after) {
     return lead + snippet + trail;
 }
 
+// Opens the browser's own file dialog. Clearing the value lets the same file be chosen again.
+export function chooseFile(input) {
+    if (!input || typeof input.click !== "function") {
+        return;
+    }
+
+    input.value = "";
+    input.click();
+}
+
 // The choice comes back through the .NET callback. Closing the dialog without choosing never answers.
 export async function pickFile(dotnet, method, type, root) {
     const files = await whenPickstackReady(5000);

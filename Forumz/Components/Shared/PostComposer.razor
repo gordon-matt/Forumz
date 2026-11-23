@@ -15,9 +15,10 @@
     {
         <MarkdownEditor @ref="markdown" @key="generation" Value="@Text" ValueChanged="TextChanged" Rows="8" AriaLabel="@Label" Placeholder="Write your post. Markdown is welcome.">
             <ToolbarExtra>
-                @if (Capabilities.HasFileManager)
+                <button type="button" class="nf-icon-button" title="Insert image" aria-label="Insert image" @onclick="ChooseImageAsync"><Icon Name="image" Size="16" /></button>
+                @if (!Capabilities.HasFileManager)
                 {
-                    <button type="button" class="nf-icon-button" title="Insert image" aria-label="Insert image" @onclick="PickImageAsync"><Icon Name="image" Size="16" /></button>
+                    <input @ref="imageFile" class="fz-file-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" tabindex="-1" aria-hidden="true" @onchange="UploadLocalImageAsync" />
                 }
             </ToolbarExtra>
             <Preview Context="source">
