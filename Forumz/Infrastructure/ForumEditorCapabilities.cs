@@ -10,11 +10,9 @@ namespace Forumz.Infrastructure;
 /// </summary>
 internal sealed class ForumEditorCapabilities(IServiceProvider services, IOptions<ForumzOptions> options)
 {
-    private readonly bool fileManagerRegistered = services.GetService<IFileManager>() is not null;
-
     public bool HasRichTextEditor { get; } = services.GetService<IRichTextEditor>() is not null;
 
-    public bool HasFileManager => fileManagerRegistered && options.Value.UseFileManager;
+    public bool HasFileManager { get => field && options.Value.UseFileManager; } = services.GetService<IFileManager>() is not null;
 
     public bool AllowsMarkdown => options.Value.EditorMode != ForumEditorMode.RichText || !HasRichTextEditor;
 

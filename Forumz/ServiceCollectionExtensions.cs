@@ -1,12 +1,10 @@
 using EasyChatz;
 using EasyChatz.Services;
 using Forumz.Components;
-using Forumz.Services;
 using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Components;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Forumz;
@@ -40,6 +38,7 @@ public static class ServiceCollectionExtensions
             services.AddNetForgeComponents();
             services.AddNetForgeMenuContributor<ForumzMenuContributor>();
             services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, ForumCircuitHandler>());
+            services.AddScoped<IPostImageLocation, PickstackPostImageLocation>();
             services.TryAddScoped<ForumEditorCapabilities>();
             services.TryAddScoped<ForumUrls>();
             services.TryAddScoped<IForumPresentation, DefaultForumPresentation>();

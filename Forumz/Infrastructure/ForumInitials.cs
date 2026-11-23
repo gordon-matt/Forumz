@@ -10,10 +10,10 @@ internal static class ForumInitials
             return "?";
         }
 
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string[] parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (parts.Length == 1)
         {
-            var word = parts[0];
+            string word = parts[0];
             return word.Length == 1
                 ? char.ToUpperInvariant(word[0]).ToString()
                 : string.Concat(char.ToUpperInvariant(word[0]), char.ToUpperInvariant(word[1]));

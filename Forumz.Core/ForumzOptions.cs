@@ -132,10 +132,4 @@ public sealed class ForumzOptions
     /// Nested folders such as <c>media/avatars</c> are allowed. A path that leaves wwwroot is rejected.
     /// </summary>
     public string ProfilePhotoPath { get; set; } = "forumz/avatars";
-
-    /// <summary>
-    /// Folder under wwwroot for images inserted into Markdown posts when the file manager is off.
-    /// Nested folders such as <c>media/posts</c> are allowed. A path that leaves wwwroot is rejected.
-    /// </summary>
-    public string PostImagePath { get; set; } = "forumz/images";
 }

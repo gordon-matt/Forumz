@@ -14,7 +14,7 @@ internal sealed class ForumPresentationPolicy : MatcherPolicy, IEndpointSelector
 
     /// <inheritdoc />
     public bool AppliesToEndpoints(IReadOnlyList<Endpoint> endpoints) =>
-        endpoints.Any(endpoint => IsForumDocument(endpoint));
+        endpoints.Any(IsForumDocument);
 
     /// <inheritdoc />
     public Task ApplyAsync(HttpContext httpContext, CandidateSet candidates)

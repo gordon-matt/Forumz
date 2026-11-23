@@ -1,8 +1,8 @@
 using EasyChatz;
-using Heroicsoft.NetForge.Components;
-using Heroicsoft.NetForge.WebAssets;
 using Heroicsoft.NetForge.Abstractions.Auth;
+using Heroicsoft.NetForge.Components;
 using Heroicsoft.NetForge.Results;
+using Heroicsoft.NetForge.WebAssets;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.StaticFiles;
@@ -174,7 +174,7 @@ public static class EndpointRouteBuilderExtensions
         }
 
         var types = new FileExtensionContentTypeProvider();
-        if (!types.TryGetContentType(path, out var contentType))
+        if (!types.TryGetContentType(path, out string? contentType))
         {
             contentType = "application/octet-stream";
         }

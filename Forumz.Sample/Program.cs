@@ -21,6 +21,11 @@ builder.Services.AddDemoUsers();
 // maps a circuit at the site root.
 builder.Services.AddControllersWithViews();
 builder.Services.AddPickstack(builder.Configuration)
+    // In most forums, you're not going to want a file manager, as forums are usually public.
+    // If you do, then just uncomment the following lines to enable it.
+    //.AddWebFilez(files => files
+    //    .Server(server => server.MaxUploadBytes = 32 * 1024 * 1024))
+    //.Pickstack
     .AddTinyMce8(editor => editor
         .WithHeight(280)
         .ShowPromotion(false)

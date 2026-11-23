@@ -1,15 +1,21 @@
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Hosting;
-
 namespace Forumz.Services;
+
+/// <summary>The folder a file manager would use, so an image uploaded without one still appears there later.</summary>
+public interface IPostImageLocation
+{
+    /// <summary>Absolute path of the upload folder.</summary>
+    string PhysicalPath { get; }
+
+    /// <summary>Public URL prefix, with a leading slash. A trailing slash is added when it is missing.</summary>
+    string RequestPath { get; }
+}
 
 /// <summary>Saves an image from the author's computer and returns the address to put in a post.</summary>
 public interface IPostImageStore
 {
     /// <summary>
     /// Stores a JPEG, PNG, GIF, or WebP image of at most 2 MB.
-    /// The returned address is root-relative, such as <c>/forumz/images/ab12.png</c>.
+    /// The returned address is root-relative, such as <c>/media/ab12.png</c>.
     /// </summary>
     /// <param name="content">Image bytes.</param>
     /// <param name="contentType">The image media type, such as <c>image/png</c>.</param>
@@ -18,14 +24,10 @@ public interface IPostImageStore
 }
 
 /// <summary>
-/// Writes post images under wwwroot, in <see cref="ForumzOptions.PostImagePath"/>.
-/// A folder that leaves wwwroot is rejected. Each file gets its own name, so one upload cannot replace another.
+/// Writes post images into <see cref="IPostImageLocation"/>, which is the Pickstack upload folder when the host has one.
+/// Each file gets its own name, so one upload cannot replace another.
 /// </summary>
-public sealed class PostImageStore(
-    IOptions<ForumzOptions> options,
-    IWebHostEnvironment environment,
-    IForumTenantScope tenants,
-    ILogger<PostImageStore> logger) : IPostImageStore
+public sealed class PostImageStore(IPostImageLocation location, ILogger<PostImageStore> logger) : IPostImageStore
 {
     private const long MaxBytes = 2 * 1024 * 1024;
 
@@ -43,24 +45,21 @@ public sealed class PostImageStore(
             return Result<string>.Invalid(new ValidationError(nameof(content), "Choose an image."));
         }
 
-        var directory = ImageDirectory();
-        if (!directory.IsSuccess)
+        if (string.IsNullOrWhiteSpace(location.PhysicalPath))
         {
-            return directory.ValidationErrors.Any()
-                ? Result<string>.Invalid(directory.ValidationErrors)
-                : Result<string>.Error(directory.Errors.FirstOrDefault() ?? "The image could not be saved.");
+            return Result<string>.Error("The site has no upload folder.");
         }
 
-        Directory.CreateDirectory(directory.Value.Full);
+        Directory.CreateDirectory(location.PhysicalPath);
         string name = Guid.NewGuid().ToString("N") + extension;
-        string destination = Path.Combine(directory.Value.Full, name);
+        string destination = Path.Combine(location.PhysicalPath, name);
         bool keep = false;
 
         try
         {
             await using (var output = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             {
-                var buffer = new byte[81920];
+                byte[] buffer = new byte[81920];
                 long total = 0;
                 int read;
                 while ((read = await content.ReadAsync(buffer, cancellationToken)) > 0)
@@ -90,49 +89,20 @@ public sealed class PostImageStore(
             }
         }
 
-        string url = "/" + directory.Value.Relative + "/" + name;
+        string prefix = location.RequestPath.Replace('\\', '/').Trim();
+        if (!prefix.StartsWith('/'))
+        {
+            prefix = "/" + prefix;
+        }
+
+        if (!prefix.EndsWith('/'))
+        {
+            prefix += "/";
+        }
+
+        string url = prefix + name;
         logger.LogInformation("Stored a forum post image at {Url}", url);
         return Result<string>.Success(url);
-    }
-
-    private Result<(string Full, string Relative)> ImageDirectory()
-    {
-        if (string.IsNullOrEmpty(environment.WebRootPath))
-        {
-            return Result<(string, string)>.Error("The site has no wwwroot directory.");
-        }
-
-        string? relative = DefaultProfileProvider.NormalizePath(options.Value.PostImagePath);
-        if (relative is null)
-        {
-            return Result<(string, string)>.Invalid(new ValidationError(nameof(ForumzOptions.PostImagePath), "The post image folder must stay under wwwroot."));
-        }
-
-        string? tenant = SafeTenant(tenants.TenantId);
-        if (tenant is not null)
-        {
-            relative += "/" + tenant;
-        }
-
-        string root = Path.GetFullPath(environment.WebRootPath);
-        string full = Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
-        string prefix = root.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        return full.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-            ? Result<(string, string)>.Success((full, relative))
-            : Result<(string, string)>.Invalid(new ValidationError(nameof(ForumzOptions.PostImagePath), "The post image folder must stay under wwwroot."));
-    }
-
-    private static string? SafeTenant(string? tenantId)
-    {
-        if (string.IsNullOrWhiteSpace(tenantId))
-        {
-            return null;
-        }
-
-        string trimmed = tenantId.Trim();
-        return trimmed.All(character => char.IsAsciiLetterOrDigit(character) || character is '-' or '_')
-            ? trimmed
-            : Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(trimmed))).ToLowerInvariant()[..16];
     }
 
     private static string? ExtensionFor(string? contentType)

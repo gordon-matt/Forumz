@@ -96,15 +96,9 @@ public static partial class PostQuote
         return builder.ToString();
     }
 
-    private static string Normalize(string? source)
-    {
-        if (string.IsNullOrWhiteSpace(source))
-        {
-            return string.Empty;
-        }
-
-        return source.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n').Trim();
-    }
+    private static string Normalize(string? source) => string.IsNullOrWhiteSpace(source)
+            ? string.Empty
+            : source.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n').Trim();
 
     private static string HtmlToText(string html)
     {

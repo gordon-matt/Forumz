@@ -1,6 +1,5 @@
 using Forumz.Core;
 using Forumz.Services;
-using Heroicsoft.NetForge.Abstractions.Auth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -12,7 +11,10 @@ public sealed class DefaultProfileProviderTests : IDisposable
 {
     private readonly string root = Path.Combine(Path.GetTempPath(), "forumz-photos-" + Guid.NewGuid().ToString("N"));
 
-    public DefaultProfileProviderTests() => Directory.CreateDirectory(root);
+    public DefaultProfileProviderTests()
+    {
+        Directory.CreateDirectory(root);
+    }
 
     public void Dispose() => Directory.Delete(root, recursive: true);
 

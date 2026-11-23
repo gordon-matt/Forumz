@@ -39,29 +39,23 @@ public static class DemoUsers
     }
 
     /// <summary>Points the current scope at a demo user. The sample seeder uses this before the site is serving requests.</summary>
-    public static void Impersonate(IHttpContextAccessor accessor, IServiceProvider services, DemoUser user)
+    public static void Impersonate(IHttpContextAccessor accessor, IServiceProvider services, DemoUser user) => accessor.HttpContext = new DefaultHttpContext
     {
-        accessor.HttpContext = new DefaultHttpContext
-        {
-            RequestServices = services,
-            User = Principal(user),
-        };
-    }
+        RequestServices = services,
+        User = Principal(user),
+    };
 
     public static string LocalReturn(string? value)
     {
         string path = value?.Trim() ?? string.Empty;
-        if (path.Length == 0
+        return path.Length == 0
             || !path.StartsWith('/')
             || path.StartsWith("//", StringComparison.Ordinal)
             || path.Contains('\\')
             || path.Contains('\r')
-            || path.Contains('\n'))
-        {
-            return "/forums";
-        }
-
-        return path;
+            || path.Contains('\n')
+            ? "/forums"
+            : path;
     }
 }
 
@@ -130,12 +124,7 @@ public static class DemoAuth
         bool forumPage = path == "/"
             || path.Equals("/forums", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("/forums/", StringComparison.OrdinalIgnoreCase);
-        if (!forumPage || path.Contains("/_", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return request.Headers.Accept.Any(value =>
+        return forumPage && !path.Contains("/_", StringComparison.Ordinal) && request.Headers.Accept.Any(value =>
             value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true);
     }
 

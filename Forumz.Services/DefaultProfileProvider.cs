@@ -87,7 +87,7 @@ public sealed class DefaultProfileProvider(
         {
             await using (var output = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                var buffer = new byte[81920];
+                byte[] buffer = new byte[81920];
                 long total = 0;
                 int read;
                 while ((read = await content.ReadAsync(buffer, cancellationToken)) > 0)
@@ -162,12 +162,9 @@ public sealed class DefaultProfileProvider(
     private Result RequireSelf(string userId)
     {
         string? current = users.GetCurrentUserId();
-        if (string.IsNullOrWhiteSpace(current))
-        {
-            return Result.Forbidden("Sign in to change your photo.");
-        }
-
-        return string.Equals(current, userId, StringComparison.Ordinal)
+        return string.IsNullOrWhiteSpace(current)
+            ? Result.Forbidden("Sign in to change your photo.")
+            : string.Equals(current, userId, StringComparison.Ordinal)
             ? Result.Success()
             : Result.Forbidden("You can only change your own photo.");
     }

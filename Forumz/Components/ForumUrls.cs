@@ -38,11 +38,8 @@ public sealed class ForumUrls(IOptions<ForumzOptions> options)
     private static string Normalize(string relative)
     {
         string value = relative.Trim();
-        if (value is "" or "." or "./")
-        {
-            return string.Empty;
-        }
-
-        return value.StartsWith("./", StringComparison.Ordinal) ? value[2..] : value.TrimStart('/');
+        return value is "" or "." or "./"
+            ? string.Empty
+            : value.StartsWith("./", StringComparison.Ordinal) ? value[2..] : value.TrimStart('/');
     }
 }
