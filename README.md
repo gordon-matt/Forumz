@@ -2,6 +2,12 @@
 
 A Blazor forum you can mount in any ASP.NET Core site. It is a Razor class library, not an MVC app: the host calls `AddForumz()` and `MapForumz()`, and the pages run as their own interactive circuit.
 
+## Screenshots
+
+<img src="https://github.com/gordon-matt/Forumz/raw/master/_Misc/Screenshots/Posts.png" alt="Posts" />
+
+<img src="https://github.com/gordon-matt/Forumz/raw/master/_Misc/Screenshots/PrivateMessages.png" alt="Private Messages" />
+
 ## Add it to a site
 
 Pick the database you already use. Forumz keeps its own tables and its own migration history, so it can share the host database.
