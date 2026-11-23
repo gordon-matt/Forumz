@@ -65,7 +65,7 @@ public sealed class SampleSeeder(IServiceProvider services, ILogger<SampleSeeder
             new CreateTopicRequest(
                 forum.Value,
                 "Hello",
-                "This sample signs in as Dev User. Use the top bar to switch to Blair Chen or Casey Nguyen, then open Messages to write to either of them. Posts are plain text."),
+                "This sample signs in as Dev User. Use the top bar to switch to Blair Chen or Casey Nguyen, then open Messages to write to either of them. Posts can be Markdown or rich text."),
             null,
             cancellationToken);
         if (!topic.IsSuccess)
