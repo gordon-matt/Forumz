@@ -13,11 +13,13 @@
 		<PackageProjectUrl>https://github.com/gordon-matt/Forumz</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/gordon-matt/Forumz</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
+		<PackageIcon>Icon.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="$(MSBuildThisFileDirectory)_Misc\Icon.png" Pack="true" PackagePath="\" Visible="false" />
 	</ItemGroup>
 
 	<PropertyGroup>

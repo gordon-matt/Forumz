@@ -13,9 +13,9 @@
     <PackageVersion Include="EasyChatz.Data.Sqlite" Version="2.0.2" />
     <PackageVersion Include="Extenso.Data.Entity" Version="10.2.2" />
     <PackageVersion Include="Heroicsoft.NetForge.Abstractions" Version="1.2.8" />
-    <PackageVersion Include="Heroicsoft.NetForge.Components" Version="1.2.8" />
+    <PackageVersion Include="Heroicsoft.NetForge.Components" Version="1.2.9" />
     <PackageVersion Include="Heroicsoft.NetForge.Results" Version="1.2.8" />
-    <PackageVersion Include="Heroicsoft.NetForge.WebAssets" Version="1.2.8" />
+    <PackageVersion Include="Heroicsoft.NetForge.WebAssets" Version="1.2.9" />
     <PackageVersion Include="HtmlSanitizer" Version="10.0.1120" />
     <PackageVersion Include="Markdig" Version="1.6.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14" />
