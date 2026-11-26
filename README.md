@@ -4,7 +4,11 @@ A Blazor forum you can mount in any ASP.NET Core site. It is a Razor class libra
 
 ## Screenshots
 
+### Posts
+
 <img src="https://github.com/gordon-matt/Forumz/raw/master/_Misc/Screenshots/Posts.png" alt="Posts" />
+
+### Private Messages
 
 <img src="https://github.com/gordon-matt/Forumz/raw/master/_Misc/Screenshots/PrivateMessages.png" alt="Private Messages" />
 
